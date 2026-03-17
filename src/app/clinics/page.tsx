@@ -18,7 +18,8 @@ const clinics = [
       { icon: User, label: "Multidisciplinary Therapy Team" },
       { icon: Star, label: "Specialities: Psychotherapy, ADHD Assessments, Play Therapy, Trauma Care" },
       { icon: Globe, label: "Languages not specified" }
-    ]
+    ],
+    redirect: false,
   },
   {
     id: 2,
@@ -30,7 +31,8 @@ const clinics = [
       { icon: User, label: "Mental Health Specialists" },
       { icon: Star, label: "13+ Years Experience" },
       { icon: Globe, label: "Psychological, Marital, Family Counseling" }
-    ]
+    ],
+    redirect: false,
   },
   {
     id: 3,
@@ -42,7 +44,9 @@ const clinics = [
       { icon: User, label: "Medical Specialists" },
       { icon: Star, label: "General Medical Services" },
       { icon: Globe, label: "More info: alharubmedical.com" }
-    ]
+    ],
+    redirect: true,
+    redirectUrl: "https://alharubmedical.com",
   },
   {
     id: 4,
@@ -54,7 +58,8 @@ const clinics = [
       { icon: User, label: "Counselors, Psychologists & Therapists" },
       { icon: Star, label: "Specialities: Hypnotherapy, Marriage Counseling, Child & Teen Therapy" },
       { icon: Globe, label: "Languages not specified" }
-    ]
+    ],
+    redirect: false,
   },
   {
     id: 5,
@@ -66,7 +71,8 @@ const clinics = [
       { icon: User, label: "Psychiatry & Family Therapy Specialists" },
       { icon: Star, label: "Evidence-Based Psychological Care" },
       { icon: Globe, label: "Languages not specified" }
-    ]
+    ],
+    redirect: false,
   }
 ];
 
@@ -99,8 +105,20 @@ export default function ClinicsPage() {
         </div> */}
         
         <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4">
-          {clinics.map(clinic => (
-            <Link key={clinic.id} href={`/clinics/${clinic.id}`} className="group relative bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-[shadow,transform] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-105 block">
+          {clinics.map(clinic => {
+            // Determine link behavior based on redirect flag
+            const isExternalRedirect = clinic.redirect && clinic.redirectUrl;
+            const linkHref = isExternalRedirect ? clinic.redirectUrl : `/clinics/${clinic.id}`;
+            
+            return (
+              <Link 
+                key={clinic.id} 
+                href={linkHref}
+                target={isExternalRedirect ? "_blank" : undefined}
+                rel={isExternalRedirect ? "noopener noreferrer" : undefined}
+                className="group relative bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-[shadow,transform] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-105 block"
+                aria-label={`${clinic.name}${isExternalRedirect ? ' (opens in new tab)' : ''}`}
+              >
               <div className="w-[450px] h-[450px] mx-auto mb-6">
                 <img 
                   src={clinic.image} 
@@ -146,7 +164,8 @@ export default function ClinicsPage() {
                 </div>
               </div>
             </Link>
-          ))}
+          );
+        })}
         </div>
       </div>
     </div>

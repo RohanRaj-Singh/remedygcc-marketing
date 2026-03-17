@@ -49,7 +49,7 @@ export default function Footer() {
           <span className="font-roca-one text-4xl text-white">Remedy</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-          {footerColumns.map((column) => (
+          {/* {footerColumns.map((column) => (
             <div key={column.title}>
               <h3 className="font-roca-one text-xl mb-4 relative pb-2">
                 {column.title}
@@ -68,7 +68,7 @@ export default function Footer() {
                 ))}
               </ul>
             </div>
-          ))}
+          ))} */}
         </div>
 
         {/* Divider */}

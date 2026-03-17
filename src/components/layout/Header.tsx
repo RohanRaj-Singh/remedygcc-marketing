@@ -7,9 +7,9 @@ import Container from './Container';
 
 const navItems = [
   { label: 'How it works', href: '/how-it-works' },
-  { label: 'Our Therapists', href: '/therapists' },
-  { label: 'Clinics', href: '/clinics' },
-  { label: 'About Remedy', href: '/about' },
+  // { label: 'Our Therapists', href: '/therapists' },
+  // { label: 'Clinics', href: '/clinics' },
+  // { label: 'About Remedy', href: '/about' },
 ];
 
 export default function Header() {
@@ -48,14 +48,14 @@ export default function Header() {
             </button>
 
             {/* Log In Button */}
-            <button className="btn-secondary">
+            {/* <button className="btn-secondary">
               Log In
-            </button>
+            </button> */}
 
             {/* Get Started Button */}
-            <button className="btn-primary">
+            {/* <button className="btn-primary">
               Get Started
-            </button>
+            </button> */}
           </div>
 
           {/* Mobile Menu Button */}

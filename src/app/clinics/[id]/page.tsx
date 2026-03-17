@@ -1,6 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Phone, Mail, Globe } from "lucide-react";
+import dynamic from "next/dynamic";
+
+// Dynamically import the map component with SSR disabled to avoid Leaflet window errors
+const ClinicMap = dynamic(() => import("@/components/clinic-map/ClinicMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-gray-100 rounded-xl h-[400px] flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-3"></div>
+        <p className="text-gray-600 font-satoshi">Loading map...</p>
+      </div>
+    </div>
+  ),
+});
 
 export const metadata: Metadata = {
   title: "Clinic Details | Remedy GCC",
@@ -18,6 +32,7 @@ const clinicsData = [
       "https://placehold.co/400x800"
     ],
     address: "First Tower - 2nd Floor, Way 6829 - Al Athiba, Azaiba, Muscat, Oman",
+    coordinates: { lat: 23.5945, lng: 58.4237 },
     description:
       "Eunoia Clinic focuses on improving the quality of life for individuals and families by providing compassionate mental health care. The clinic offers culturally sensitive, evidence-based services including psychotherapy for adults, play therapy, trauma-focused care, and ADHD and cognitive assessments for children and adolescents.",
     workingHours: [
@@ -46,6 +61,7 @@ const clinicsData = [
       "https://placehold.co/400x800"
     ],
     address: "Al Khould, Oman",
+    coordinates: { lat: 23.6700, lng: 58.5300 },
     description:
       "Hayat Counseling Center provides professional mental health services backed by over 13 years of experience. The center offers consultations for psychological, marital, family, professional, and developmental issues, as well as support for abuse-related concerns in a supportive and confidential environment.",
     workingHours: [
@@ -74,6 +90,7 @@ const clinicsData = [
       "https://placehold.co/400x800"
     ],
     address: null,
+    coordinates: { lat: 23.6100, lng: 58.4500 },
     description:
       "Al Harub Medical Center provides medical services and healthcare solutions. Further clinic details and services can be found on their official website.",
     workingHours: [
@@ -103,6 +120,7 @@ const clinicsData = [
     ],
     address:
       "North Athaiba, 18th Nov. St., Way #6848, Villa #3086 A, Muscat, Oman",
+    coordinates: { lat: 23.5880, lng: 58.3829 },
     description:
       "Whispers of Serenity Clinic is one of the pioneering private mental health clinics in Oman. Established in 2011, it provides holistic psychological support through counseling, hypnotherapy, marriage counseling, and child and teen therapy. The clinic promotes emotional resilience and balanced mental well-being.",
     workingHours: [
@@ -132,6 +150,7 @@ const clinicsData = [
     ],
     address:
       "Al Mawaleh Al Janubiyya, Al-Izdihar Street, Seeb, Muscat, Oman",
+    coordinates: { lat: 23.6500, lng: 58.4000 },
     description:
       "Ehtewa Mental Health Clinic is a specialized psychological care facility offering psychiatry and family therapy services. The clinic focuses on evidence-based practices to help individuals and families achieve emotional balance and long-term mental well-being.",
     workingHours: [
@@ -248,11 +267,12 @@ export default async function ClinicPage({ params }: PageProps) {
               <h2 className="text-2xl font-roca-one text-primary mb-4">
                 Address
               </h2>
-              <div className="bg-gray-100 rounded-xl h-[400px] flex items-center justify-center mb-6">
-                <div className="text-center">
-                  <MapPin className="h-16 w-16 text-primary mx-auto mb-3" />
-                  <p className="text-gray-600 font-satoshi">{clinic.address}</p>
-                </div>
+              <div className="mb-6">
+                <ClinicMap 
+                  address={clinic.address || "Muscat, Oman"} 
+                  clinicName={clinic.name}
+                  coordinates={clinic.coordinates}
+                />
               </div>
 
               {/* Contact Information Below Map */}
@@ -265,14 +285,14 @@ export default async function ClinicPage({ params }: PageProps) {
                     <Phone className="h-5 w-5 text-primary" />
                     <span className="font-satoshi text-gray-600">{clinic.contact.phone}</span>
                   </div>
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                  {/* <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
                     <Mail className="h-5 w-5 text-primary" />
                     <span className="font-satoshi text-gray-600">{clinic.contact.email}</span>
                   </div>
                   <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
                     <Globe className="h-5 w-5 text-primary" />
                     <span className="font-satoshi text-gray-600">{clinic.contact.website}</span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
