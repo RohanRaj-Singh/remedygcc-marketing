@@ -1,0 +1,14 @@
+
+> remedygcc-marketing@0.1.0 dev
+> next dev --port 4012
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:4012
+
+ ✓ Starting...
+ ✓ Ready in 2.6s
+ ○ Compiling /clinics ...
+ ✓ Compiled /clinics in 4.1s (715 modules)
+ GET /clinics 200 in 4446ms
+ ✓ Compiled in 504ms (385 modules)
+ ✓ Compiled in 77ms (273 modules)

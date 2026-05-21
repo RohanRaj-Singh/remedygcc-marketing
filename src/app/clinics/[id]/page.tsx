@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Phone, Mail, Globe } from "lucide-react";
+import { ArrowLeft, Globe, Mail, MapPin, Phone, type LucideIcon } from "lucide-react";
 import dynamic from "next/dynamic";
+import { getClinicById, type ClinicMedia } from "@/data/clinics";
 
 // Dynamically import the map component with SSR disabled to avoid Leaflet window errors
 const ClinicMap = dynamic(() => import("@/components/clinic-map/ClinicMap"), {
@@ -21,154 +23,20 @@ export const metadata: Metadata = {
   description: "View clinic details, working hours, and contact information.",
 };
 
-const clinicsData = [
-  {
-    id: 1,
-    name: "Eunoia Clinic",
-    image: "https://placehold.co/800x800",
-    gallery: [
-      "https://placehold.co/800x800",
-      "https://placehold.co/400x800",
-      "https://placehold.co/400x800"
-    ],
-    address: "First Tower - 2nd Floor, Way 6829 - Al Athiba, Azaiba, Muscat, Oman",
-    coordinates: { lat: 23.5945, lng: 58.4237 },
-    description:
-      "Eunoia Clinic focuses on improving the quality of life for individuals and families by providing compassionate mental health care. The clinic offers culturally sensitive, evidence-based services including psychotherapy for adults, play therapy, trauma-focused care, and ADHD and cognitive assessments for children and adolescents.",
-    workingHours: [
-      { day: "Sunday", hours: "9:30 AM - 6:00 PM" },
-      { day: "Monday", hours: "9:30 AM - 6:00 PM" },
-      { day: "Tuesday", hours: "9:30 AM - 6:00 PM" },
-      { day: "Wednesday", hours: "9:30 AM - 6:00 PM" },
-      { day: "Thursday", hours: "9:30 AM - 6:00 PM" },
-      { day: "Friday", hours: "Closed" },
-      { day: "Saturday", hours: "Closed" }
-    ],
-    contact: {
-      phone: "+968 24121188, +968 71580235",
-      email: null,
-      website: null
-    }
-  },
-
-  {
-    id: 2,
-    name: "Hayat Counseling Center",
-    image: "https://placehold.co/800x800",
-    gallery: [
-      "https://placehold.co/800x800",
-      "https://placehold.co/400x800",
-      "https://placehold.co/400x800"
-    ],
-    address: "Al Khould, Oman",
-    coordinates: { lat: 23.6700, lng: 58.5300 },
-    description:
-      "Hayat Counseling Center provides professional mental health services backed by over 13 years of experience. The center offers consultations for psychological, marital, family, professional, and developmental issues, as well as support for abuse-related concerns in a supportive and confidential environment.",
-    workingHours: [
-      { day: "Sunday", hours: "10:00 AM - 8:30 PM" },
-      { day: "Monday", hours: "10:00 AM - 8:30 PM" },
-      { day: "Tuesday", hours: "10:00 AM - 8:30 PM" },
-      { day: "Wednesday", hours: "10:00 AM - 8:30 PM" },
-      { day: "Thursday", hours: "10:00 AM - 8:30 PM" },
-      { day: "Friday", hours: "Closed" },
-      { day: "Saturday", hours: "Closed" }
-    ],
-    contact: {
-      phone: "+968 96335662",
-      email: null,
-      website: null
-    }
-  },
-
-  {
-    id: 3,
-    name: "Al Harub Medical Center",
-    image: "https://placehold.co/800x800",
-    gallery: [
-      "https://placehold.co/800x800",
-      "https://placehold.co/400x800",
-      "https://placehold.co/400x800"
-    ],
-    address: null,
-    coordinates: { lat: 23.6100, lng: 58.4500 },
-    description:
-      "Al Harub Medical Center provides medical services and healthcare solutions. Further clinic details and services can be found on their official website.",
-    workingHours: [
-      { day: "Monday", hours: "Not specified" },
-      { day: "Tuesday", hours: "Not specified" },
-      { day: "Wednesday", hours: "Not specified" },
-      { day: "Thursday", hours: "Not specified" },
-      { day: "Friday", hours: "Not specified" },
-      { day: "Saturday", hours: "Not specified" },
-      { day: "Sunday", hours: "Not specified" }
-    ],
-    contact: {
-      phone: null,
-      email: null,
-      website: "https://alharubmedical.com/"
-    }
-  },
-
-  {
-    id: 4,
-    name: "Whispers of Serenity Clinic",
-    image: "https://placehold.co/800x800",
-    gallery: [
-      "https://placehold.co/800x800",
-      "https://placehold.co/400x800",
-      "https://placehold.co/400x800"
-    ],
-    address:
-      "North Athaiba, 18th Nov. St., Way #6848, Villa #3086 A, Muscat, Oman",
-    coordinates: { lat: 23.5880, lng: 58.3829 },
-    description:
-      "Whispers of Serenity Clinic is one of the pioneering private mental health clinics in Oman. Established in 2011, it provides holistic psychological support through counseling, hypnotherapy, marriage counseling, and child and teen therapy. The clinic promotes emotional resilience and balanced mental well-being.",
-    workingHours: [
-      { day: "Sunday", hours: "9:30 AM - 2:00 PM | 3:00 PM - 8:00 PM" },
-      { day: "Monday", hours: "9:30 AM - 2:00 PM | 3:00 PM - 8:00 PM" },
-      { day: "Tuesday", hours: "9:30 AM - 2:00 PM | 3:00 PM - 8:00 PM" },
-      { day: "Wednesday", hours: "9:30 AM - 2:00 PM | 3:00 PM - 8:00 PM" },
-      { day: "Thursday", hours: "9:30 AM - 2:00 PM | 3:00 PM - 8:00 PM" },
-      { day: "Friday", hours: "Closed" },
-      { day: "Saturday", hours: "Closed" }
-    ],
-    contact: {
-      phone: "+968 99359779, +968 95717168",
-      email: "info@whispers-of-serenity.com",
-      website: "https://www.whispers-of-serenity.com"
-    }
-  },
-
-  {
-    id: 5,
-    name: "Ehtewa Mental Health Clinic",
-    image: "https://placehold.co/800x800",
-    gallery: [
-      "https://placehold.co/800x800",
-      "https://placehold.co/400x800",
-      "https://placehold.co/400x800"
-    ],
-    address:
-      "Al Mawaleh Al Janubiyya, Al-Izdihar Street, Seeb, Muscat, Oman",
-    coordinates: { lat: 23.6500, lng: 58.4000 },
-    description:
-      "Ehtewa Mental Health Clinic is a specialized psychological care facility offering psychiatry and family therapy services. The clinic focuses on evidence-based practices to help individuals and families achieve emotional balance and long-term mental well-being.",
-    workingHours: [
-      { day: "Sunday", hours: "10:00 AM - 9:00 PM" },
-      { day: "Monday", hours: "10:00 AM - 9:00 PM" },
-      { day: "Tuesday", hours: "10:00 AM - 9:00 PM" },
-      { day: "Wednesday", hours: "10:00 AM - 9:00 PM" },
-      { day: "Thursday", hours: "10:00 AM - 9:00 PM" },
-      { day: "Friday", hours: "Closed" },
-      { day: "Saturday", hours: "10:00 AM - 4:00 PM" }
-    ],
-    contact: {
-      phone: "+968 72201479, +968 94440989",
-      email: null,
-      website: null
-    }
+const getMediaFrameClassName = (media: ClinicMedia) => {
+  if (media.background === "white") {
+    return "bg-white";
   }
-];
+
+  if (media.background === "soft") {
+    return "bg-slate-50";
+  }
+
+  return "bg-slate-100";
+};
+
+const getMediaImageClassName = (media: ClinicMedia) =>
+  media.fit === "contain" ? "object-contain p-6 md:p-8" : "object-cover";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -176,7 +44,26 @@ interface PageProps {
 
 export default async function ClinicPage({ params }: PageProps) {
   const { id } = await params;
-  const clinic = clinicsData.find(c => c.id === parseInt(id)) || clinicsData[0];
+  const clinic = getClinicById(Number.parseInt(id, 10));
+  const [heroImage, ...secondaryImages] = clinic.gallery;
+  const contactItems = [
+    clinic.contact.phone
+      ? { icon: Phone, label: clinic.contact.phone }
+      : null,
+    clinic.contact.email
+      ? { icon: Mail, label: clinic.contact.email, href: `mailto:${clinic.contact.email}` }
+      : null,
+    clinic.contact.website
+      ? {
+          icon: Globe,
+          label: clinic.contact.website.replace(/^https?:\/\//, "").replace(/\/$/, ""),
+          href: clinic.contact.website,
+        }
+      : null,
+  ].filter(
+    (item): item is { icon: LucideIcon; label: string; href?: string } =>
+      item !== null,
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-white pt-28 pb-16">
@@ -192,41 +79,80 @@ export default async function ClinicPage({ params }: PageProps) {
 
         {/* Enclosed in rounded border */}
         <div className="border border-gray-200 rounded-2xl p-6 bg-white">
-          {/* Clinic Title */}
-          <h1 className="text-4xl md:text-5xl font-roca-one text-primary mb-4">
-            {clinic.name}
-          </h1>
+          <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-roca-one text-primary mb-4">
+                {clinic.name}
+              </h1>
 
-          {/* Location */}
-          <div className="flex items-center gap-2 text-gray-600 mb-8">
-            <MapPin className="h-5 w-5" />
-            <span className="font-satoshi">{clinic.address}</span>
-          </div>
-
-          {/* Image Gallery - Nearly Square Images */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
-            {/* Main Square Image */}
-            <div className="md:col-span-2">
-              <img 
-                src={clinic.gallery[0]} 
-                alt={clinic.name}
-                className="w-full h-[500px] object-cover rounded-xl"
-              />
+              <div className="flex items-start gap-2 text-gray-600">
+                <MapPin className="mt-1 h-5 w-5 shrink-0" />
+                <span className="font-satoshi">{clinic.address}</span>
+              </div>
             </div>
-            {/* Two Vertical Square Images */}
-            <div className="flex flex-col gap-4">
-              <img 
-                src={clinic.gallery[1]} 
-                alt={`${clinic.name} - 2`}
-                className="w-full h-[243px] object-cover rounded-xl"
-              />
-              <img 
-                src={clinic.gallery[2]} 
-                alt={`${clinic.name} - 3`}
-                className="w-full h-[243px] object-cover rounded-xl"
+
+            <div className="relative h-28 w-full max-w-[260px] shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+              <Image
+                src={clinic.logo.src}
+                alt={clinic.logo.alt}
+                fill
+                priority
+                sizes="260px"
+                className="object-contain p-5"
               />
             </div>
           </div>
+
+          {heroImage ? (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-12">
+              <div className={secondaryImages.length > 0 ? "md:col-span-2" : undefined}>
+                <div
+                  className={`relative overflow-hidden rounded-xl border border-gray-100 ${
+                    secondaryImages.length > 0 ? "h-[500px]" : "h-[360px] md:h-[420px]"
+                  } ${getMediaFrameClassName(heroImage)}`}
+                >
+                  <Image
+                    src={heroImage.src}
+                    alt={heroImage.alt}
+                    fill
+                    sizes="(min-width: 768px) 66vw, 100vw"
+                    className={getMediaImageClassName(heroImage)}
+                    style={
+                      heroImage.objectPosition
+                        ? { objectPosition: heroImage.objectPosition }
+                        : undefined
+                    }
+                  />
+                </div>
+              </div>
+
+              {secondaryImages.length > 0 ? (
+                <div className={`flex gap-4 ${secondaryImages.length > 1 ? "flex-col" : ""}`}>
+                  {secondaryImages.map((image) => (
+                    <div
+                      key={image.src}
+                      className={`relative overflow-hidden rounded-xl border border-gray-100 ${
+                        secondaryImages.length > 1 ? "h-[243px]" : "h-[500px]"
+                      } ${getMediaFrameClassName(image)}`}
+                    >
+                      <Image
+                        src={image.src}
+                        alt={image.alt}
+                        fill
+                        sizes="(min-width: 768px) 33vw, 100vw"
+                        className={getMediaImageClassName(image)}
+                        style={
+                          image.objectPosition
+                            ? { objectPosition: image.objectPosition }
+                            : undefined
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           {/* About Clinic, Working Hours and Map */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
@@ -281,18 +207,23 @@ export default async function ClinicPage({ params }: PageProps) {
                   Contact Information
                 </h2>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                    <Phone className="h-5 w-5 text-primary" />
-                    <span className="font-satoshi text-gray-600">{clinic.contact.phone}</span>
-                  </div>
-                  {/* <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                    <Mail className="h-5 w-5 text-primary" />
-                    <span className="font-satoshi text-gray-600">{clinic.contact.email}</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                    <Globe className="h-5 w-5 text-primary" />
-                    <span className="font-satoshi text-gray-600">{clinic.contact.website}</span>
-                  </div> */}
+                  {contactItems.map((item) => (
+                    <div key={`${clinic.id}-${item.label}`} className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                      <item.icon className="h-5 w-5 text-primary shrink-0" />
+                      {item.href ? (
+                        <a
+                          href={item.href}
+                          className="font-satoshi text-gray-600 hover:text-primary transition-colors break-all"
+                          target={item.href.startsWith("http") ? "_blank" : undefined}
+                          rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                        >
+                          {item.label}
+                        </a>
+                      ) : (
+                        <span className="font-satoshi text-gray-600">{item.label}</span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

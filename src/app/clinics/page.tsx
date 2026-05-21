@@ -1,80 +1,13 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Star, Heart, Video, User, Globe, Sofa } from "lucide-react";
+import { Sofa, Video } from "lucide-react";
+import { clinicsData } from "@/data/clinics";
 
 export const metadata: Metadata = {
   title: "Clinics | Remedy GCC",
   description: "Find our partner clinics offering physical therapy, chiropractic care, massage therapy, and acupuncture services near you.",
 };
-
-const clinics = [
-  {
-    id: 1,
-    name: "Eunoia Clinic",
-    image: "https://placehold.co/450x450",
-    address: "First Tower - 2nd Floor, Way 6829 - Al Athiba, Azaiba, Muscat, Oman",
-    acceptsInPerson: true,
-    iconInfo: [
-      { icon: User, label: "Multidisciplinary Therapy Team" },
-      { icon: Star, label: "Specialities: Psychotherapy, ADHD Assessments, Play Therapy, Trauma Care" },
-      { icon: Globe, label: "Languages not specified" }
-    ],
-    redirect: false,
-  },
-  {
-    id: 2,
-    name: "Hayat Counseling Center",
-    image: "https://placehold.co/450x450",
-    address: "Al Khould, Oman",
-    acceptsInPerson: true,
-    iconInfo: [
-      { icon: User, label: "Mental Health Specialists" },
-      { icon: Star, label: "13+ Years Experience" },
-      { icon: Globe, label: "Psychological, Marital, Family Counseling" }
-    ],
-    redirect: false,
-  },
-  {
-    id: 3,
-    name: "Al Harub Medical Center",
-    image: "https://placehold.co/450x450",
-    address: "Address not specified (See website)",
-    acceptsInPerson: true,
-    iconInfo: [
-      { icon: User, label: "Medical Specialists" },
-      { icon: Star, label: "General Medical Services" },
-      { icon: Globe, label: "More info: alharubmedical.com" }
-    ],
-    redirect: true,
-    redirectUrl: "https://alharubmedical.com",
-  },
-  {
-    id: 4,
-    name: "Whispers of Serenity Clinic",
-    image: "https://placehold.co/450x450",
-    address: "North Athaiba, 18th Nov. St., Way #6848, Villa #3086 A, Muscat, Oman",
-    acceptsInPerson: true,
-    iconInfo: [
-      { icon: User, label: "Counselors, Psychologists & Therapists" },
-      { icon: Star, label: "Specialities: Hypnotherapy, Marriage Counseling, Child & Teen Therapy" },
-      { icon: Globe, label: "Languages not specified" }
-    ],
-    redirect: false,
-  },
-  {
-    id: 5,
-    name: "Ehtewa Mental Health Clinic",
-    image: "https://placehold.co/450x450",
-    address: "Al Mawaleh Al Janubiyya, Al-Izdihar Street, Seeb, Muscat, Oman",
-    acceptsInPerson: true,
-    iconInfo: [
-      { icon: User, label: "Psychiatry & Family Therapy Specialists" },
-      { icon: Star, label: "Evidence-Based Psychological Care" },
-      { icon: Globe, label: "Languages not specified" }
-    ],
-    redirect: false,
-  }
-];
 
 export default function ClinicsPage() {
   return (
@@ -105,10 +38,14 @@ export default function ClinicsPage() {
         </div> */}
         
         <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4">
-          {clinics.map(clinic => {
+          {clinicsData.map(clinic => {
             // Determine link behavior based on redirect flag
-            const isExternalRedirect = clinic.redirect && clinic.redirectUrl;
-            const linkHref = isExternalRedirect ? clinic.redirectUrl : `/clinics/${clinic.id}`;
+            const isExternalRedirect = Boolean(clinic.redirect && clinic.redirectUrl);
+            const linkHref = isExternalRedirect ? clinic.redirectUrl! : `/clinics/${clinic.id}`;
+            const imageWrapperClassName =
+              clinic.cardImage.background === "white" ? "bg-white" : "bg-slate-50";
+            const imageClassName =
+              clinic.cardImage.fit === "contain" ? "object-contain p-8" : "object-cover";
             
             return (
               <Link 
@@ -119,11 +56,13 @@ export default function ClinicsPage() {
                 className="group relative bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-[shadow,transform] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-105 block"
                 aria-label={`${clinic.name}${isExternalRedirect ? ' (opens in new tab)' : ''}`}
               >
-              <div className="w-[450px] h-[450px] mx-auto mb-6">
-                <img 
-                  src={clinic.image} 
-                  alt={clinic.name} 
-                  className="w-full h-full object-cover"
+              <div className={`relative mb-6 aspect-square w-full overflow-hidden ${imageWrapperClassName}`}>
+                <Image
+                  src={clinic.cardImage.src}
+                  alt={clinic.cardImage.alt}
+                  fill
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  className={imageClassName}
                 />
               </div>
               <div className="p-6 pb-4">
