@@ -97,6 +97,7 @@ export default async function ClinicPage({ params }: PageProps) {
                 alt={clinic.logo.alt}
                 fill
                 priority
+                unoptimized
                 sizes="260px"
                 className="object-contain p-5"
               />
@@ -115,6 +116,7 @@ export default async function ClinicPage({ params }: PageProps) {
                     src={heroImage.src}
                     alt={heroImage.alt}
                     fill
+                    unoptimized
                     sizes="(min-width: 768px) 66vw, 100vw"
                     className={getMediaImageClassName(heroImage)}
                     style={
@@ -139,6 +141,7 @@ export default async function ClinicPage({ params }: PageProps) {
                         src={image.src}
                         alt={image.alt}
                         fill
+                        unoptimized
                         sizes="(min-width: 768px) 33vw, 100vw"
                         className={getMediaImageClassName(image)}
                         style={

@@ -22,8 +22,7 @@ export default function ClinicsPage() {
             Find Your Clinic
           </h1>
           <p className="text-xl text-gray-600 font-satoshi max-w-2xl mx-auto">
-            Discover our network of partner clinics providing professional natural healing 
-            services in convenient locations.
+            Discover our network of partner clinics providing professional services in convenient locations.
           </p>
         </div>
         
@@ -61,6 +60,7 @@ export default function ClinicsPage() {
                   src={clinic.cardImage.src}
                   alt={clinic.cardImage.alt}
                   fill
+                  unoptimized
                   sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                   className={imageClassName}
                 />

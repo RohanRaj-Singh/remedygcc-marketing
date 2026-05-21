@@ -4,7 +4,7 @@ import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 
 export const metadata: Metadata = {
-  title: "Remedy GCC | Natural Healing & Professional Therapy",
+  title: "Remedy GCC | Professional Therapy",
   description: "Experience modern healthcare with traditional values. Connect with certified therapists for physical therapy, chiropractic care, massage therapy, and acupuncture.",
   keywords: "healthcare, physical therapy, chiropractic, massage therapy, acupuncture, wellness, Remedy GCC",
 };
