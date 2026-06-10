@@ -97,8 +97,8 @@ export const clinicsData: ClinicData[] = [
     ],
     address: "First Tower - 2nd Floor, Way 6829 - Al Athiba, Azaiba, Muscat, Oman",
     addressAr: "البرج الأول - الطابق الثاني، طريق 6829 - العذيبة، أزايبة، مسقط، عمان",
-    coordinates: { lat: 23.5927, lng: 58.3741 },
-    googleMapsUrl: "https://www.google.com/maps/dir/?api=1&destination=23.5927,58.3741",
+    coordinates: { lat: 23.600, lng: 58.350 },
+    googleMapsUrl: "https://maps.app.goo.gl/LeAqKbakPTUzDkNi7",
     description:
       "Eunoia Clinic focuses on improving the quality of life for individuals and families by providing compassionate mental health care. The clinic offers culturally sensitive, evidence-based services including psychotherapy for adults, play therapy, trauma-focused care, and ADHD and cognitive assessments for children and adolescents.",
     descriptionAr:
@@ -272,8 +272,8 @@ export const clinicsData: ClinicData[] = [
     address:
       "North Athaiba, 18th Nov. St., Way #6848, Villa #3086 A, Muscat, Oman",
     addressAr: "شمال العذيبة، شارع ١٨ نوفمبر، طريق ٦٨٤٨، فيلا ٣٠٨٦ أ، مسقط، عمان",
-    coordinates: { lat: 23.588, lng: 58.3829 },
-    googleMapsUrl: "https://www.google.com/maps/dir/?api=1&destination=23.588,58.3829",
+    coordinates: { lat: 23.594, lng: 58.363 },
+    googleMapsUrl: "https://maps.app.goo.gl/a5nrJdGJDoZUANbJ8",
     description:
       "Whispers of Serenity Clinic is one of the pioneering private mental health clinics in Oman. Established in 2011, it provides holistic psychological support through counseling, hypnotherapy, marriage counseling, and child and teen therapy. The clinic promotes emotional resilience and balanced mental well-being.",
     descriptionAr:
@@ -338,8 +338,8 @@ export const clinicsData: ClinicData[] = [
     address:
       "Al Mawaleh Al Janubiyya, Al-Izdihar Street, Seeb, Muscat, Oman",
     addressAr: "الموالح الجنوبية، شارع الإزدهار، السيب، مسقط، عمان",
-    coordinates: { lat: 23.5963, lng: 58.1964 },
-    googleMapsUrl: "https://www.google.com/maps/dir/?api=1&destination=23.5963,58.1964",
+    coordinates: { lat: 23.613, lng: 58.212 },
+    googleMapsUrl: "https://maps.app.goo.gl/h684uqSGqknNAJ9P6",
     description:
       "Ehtewa Mental Health Clinic is a specialized psychological care facility offering psychiatry and family therapy services. The clinic focuses on evidence-based practices to help individuals and families achieve emotional balance and long-term mental well-being.",
     descriptionAr:
@@ -386,22 +386,22 @@ export const clinicsData: ClinicData[] = [
     name: "Nine – Pregnancy, Mother & Child Wellness Centre",
     nameAr: "ناين – مركز صحة الأم والطفل والعائلة",
     cardImage: {
-      src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%230F412E' rx='30'/%3E%3Ctext x='200' y='220' text-anchor='middle' font-family='Georgia,serif' font-size='80' fill='white' font-weight='bold'%3ENine%3C/text%3E%3C/svg%3E",
+      src: "/images/clinics/nine-wellness-centre/logo.jpg",
       alt: "Nine Wellness Centre logo",
       fit: "contain",
       background: "white",
     },
     logo: {
-      src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%230F412E' rx='30'/%3E%3Ctext x='200' y='220' text-anchor='middle' font-family='Georgia,serif' font-size='80' fill='white' font-weight='bold'%3ENine%3C/text%3E%3C/svg%3E",
+      src: "/images/clinics/nine-wellness-centre/logo.jpg",
       alt: "Nine Wellness Centre logo",
       fit: "contain",
       background: "white",
     },
     gallery: [],
-    address: "Muscat, Oman",
-    addressAr: "مسقط، عمان",
-    coordinates: { lat: 23.5965, lng: 58.4409 },
-    googleMapsUrl: "https://www.google.com/maps/dir/?api=1&destination=23.5965,58.4409",
+    address: "First Tower - 2nd Floor, Way 6829 - Al Athiba, Azaiba, Muscat, Oman",
+    addressAr: "البرج الأول - الطابق الثاني، طريق 6829 - العذيبة، أزايبة، مسقط، عمان",
+    coordinates: { lat: 23.600, lng: 58.350 },
+    googleMapsUrl: "https://maps.app.goo.gl/LeAqKbakPTUzDkNi7",
     description:
       "Nine is a family-centred wellness and healthcare hub dedicated to supporting women, babies, and families through every stage of the parenting journey. From pregnancy and birth preparation to postpartum recovery and early childhood development, Nine provides expert care, education, and wellness services in a warm and nurturing environment. Our multidisciplinary team offers prenatal and postnatal care, midwife consultations, childbirth education, pregnancy and family wellness programs, baby development activities, breastfeeding support, and specialized services designed to empower parents with knowledge, confidence, and compassionate care. At Nine, we believe every family deserves personalized support, informed choices, and a positive experience from pregnancy throughout parenthood.",
     descriptionAr:
