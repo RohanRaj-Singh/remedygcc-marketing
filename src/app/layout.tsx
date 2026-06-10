@@ -26,6 +26,9 @@ export async function generateMetadata(): Promise<Metadata> {
       locale === "ar"
         ? "رعاية صحية, علاج طبيعي, تقويم العمود الفقري, علاج بالتدليك, وخز بالإبر, عافية, ريمدي جي سي سي"
         : "healthcare, physical therapy, chiropractic, massage therapy, acupuncture, wellness, Remedy GCC",
+    icons: {
+      icon: "/favicon.svg",
+    },
   };
 }
 
