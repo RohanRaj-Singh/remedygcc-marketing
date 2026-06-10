@@ -3,48 +3,21 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Container from '../layout/Container';
+import { useI18n } from '@/i18n/I18nContext';
 
 // Placeholder therapist data - in production, this would come from an API
 const therapists = [
-  {
-    id: 1,
-    name: 'Dr. Sarah Johnson',
-    specialty: 'Physical Therapy',
-    image: 'therapist-1',
-  },
-  {
-    id: 2,
-    name: 'Dr. Michael Chen',
-    specialty: 'Chiropractic Care',
-    image: 'therapist-2',
-  },
-  {
-    id: 3,
-    name: 'Dr. Emily Williams',
-    specialty: 'Massage Therapy',
-    image: 'therapist-3',
-  },
-  {
-    id: 4,
-    name: 'Dr. James Rodriguez',
-    specialty: 'Acupuncture',
-    image: 'therapist-4',
-  },
-  {
-    id: 5,
-    name: 'Dr. Lisa Thompson',
-    specialty: 'Physical Therapy',
-    image: 'therapist-5',
-  },
-  {
-    id: 6,
-    name: 'Dr. David Kim',
-    specialty: 'Chiropractic Care',
-    image: 'therapist-6',
-  },
+  { id: 1, nameKey: 'therapists.therapistNames.sarahJohnson', specialtyKey: 'therapists.specialties.physicalTherapy' },
+  { id: 2, nameKey: 'therapists.therapistNames.michaelChen', specialtyKey: 'therapists.specialties.chiropracticCare' },
+  { id: 3, nameKey: 'therapists.therapistNames.emilyWilliams', specialtyKey: 'therapists.specialties.massageTherapy' },
+  { id: 4, nameKey: 'therapists.therapistNames.jamesRodriguez', specialtyKey: 'therapists.specialties.acupuncture' },
+  { id: 5, nameKey: 'therapists.therapistNames.lisaThompson', specialtyKey: 'therapists.specialties.physicalTherapy' },
+  { id: 6, nameKey: 'therapists.therapistNames.davidKim', specialtyKey: 'therapists.specialties.chiropracticCare' },
 ];
 
 export default function TherapistsGallery() {
+  const { t } = useI18n();
+
   return (
     <section id="therapists" className="py-20 bg-gray-50">
       <Container>
@@ -57,7 +30,7 @@ export default function TherapistsGallery() {
             transition={{ duration: 0.5 }}
             className="font-satoshi font-bold text-primary uppercase tracking-wider text-sm mb-4 block"
           >
-            Our Therapists
+            {t('therapists.label')}
           </motion.span>
 
           <motion.h2
@@ -67,7 +40,7 @@ export default function TherapistsGallery() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="font-roca-one text-section-heading text-primary mb-6"
           >
-            Meet Our Expert Team
+            {t('therapists.title')}
           </motion.h2>
 
           <motion.p
@@ -77,9 +50,7 @@ export default function TherapistsGallery() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="font-satoshi text-paragraph text-text-gray max-w-2xl mx-auto"
           >
-            Our team of certified therapists is dedicated to providing you with
-            the highest quality care. Each member brings unique expertise and
-            a compassionate approach to your healing journey.
+            {t('therapists.description')}
           </motion.p>
         </div>
 
@@ -100,7 +71,7 @@ export default function TherapistsGallery() {
                   <div className="text-center">
                     <div className="w-20 h-20 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                       <span className="font-roca-one text-2xl text-primary">
-                        {therapist.name.charAt(0)}
+                        {t(therapist.nameKey).charAt(0)}
                       </span>
                     </div>
                   </div>
@@ -111,10 +82,10 @@ export default function TherapistsGallery() {
                 {/* Info */}
                 <div className="p-6">
                   <h3 className="font-roca-one text-xl text-primary mb-2">
-                    {therapist.name}
+                    {t(therapist.nameKey)}
                   </h3>
                   <p className="font-satoshi text-text-gray">
-                    {therapist.specialty}
+                    {t(therapist.specialtyKey)}
                   </p>
                 </div>
               </div>

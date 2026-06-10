@@ -4,26 +4,17 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Check, Clock, Shield } from 'lucide-react';
 import Container from '../layout/Container';
+import { useI18n } from '@/i18n/I18nContext';
 
-const features = [
-  {
-    icon: Clock,
-    title: 'Quick Appointments',
-    description: 'Book your visit in seconds, not hours. Same-day availability.',
-  },
-  {
-    icon: Shield,
-    title: 'Verified Therapists',
-    description: 'Every therapist is licensed, vetted, and highly qualified.',
-  },
-  {
-    icon: Check,
-    title: 'Personalized Care',
-    description: 'Treatment plans tailored to your unique health needs.',
-  },
-];
+const featureKeys = [
+  { icon: Clock, titleKey: 'product.features.quickAppointments.title', descKey: 'product.features.quickAppointments.description' },
+  { icon: Shield, titleKey: 'product.features.verifiedTherapists.title', descKey: 'product.features.verifiedTherapists.description' },
+  { icon: Check, titleKey: 'product.features.personalizedCare.title', descKey: 'product.features.personalizedCare.description' },
+] as const;
 
 export default function ProductSection() {
+  const { t } = useI18n();
+
   return (
     <section id="how-it-works" className="py-20 bg-white">
       <Container>
@@ -38,7 +29,7 @@ export default function ProductSection() {
               transition={{ duration: 0.5 }}
               className="font-satoshi font-bold text-primary uppercase tracking-wider text-sm mb-4 block"
             >
-              Our Product
+              {t('product.label')}
             </motion.span>
 
             {/* Title */}
@@ -49,9 +40,9 @@ export default function ProductSection() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="font-roca-one text-section-heading text-primary mb-6"
             >
-              Modern Healthcare,
+              {t('product.title1')}
               <br />
-              Traditional Values
+              {t('product.title2')}
             </motion.h2>
 
             {/* Paragraph */}
@@ -62,17 +53,14 @@ export default function ProductSection() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="font-satoshi text-paragraph text-text-gray mb-10"
             >
-              Experience healthcare reimagined. We combine cutting-edge
-              technology with holistic approaches to help you achieve optimal
-              wellness. Our platform makes it easy to connect with the best
-              therapists in your area.
+              {t('product.description')}
             </motion.p>
 
             {/* Feature Boxes */}
             <div className="space-y-6">
-              {features.map((feature, index) => (
+              {featureKeys.map((feature, index) => (
                 <motion.div
-                  key={feature.title}
+                  key={feature.titleKey}
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
@@ -84,10 +72,10 @@ export default function ProductSection() {
                   </div>
                   <div>
                     <h3 className="font-satoshi font-bold text-primary text-lg mb-1">
-                      {feature.title}
+                      {t(feature.titleKey)}
                     </h3>
                     <p className="font-satoshi text-text-gray">
-                      {feature.description}
+                      {t(feature.descKey)}
                     </p>
                   </div>
                 </motion.div>
@@ -108,10 +96,10 @@ export default function ProductSection() {
               <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center text-white p-8">
                   <div className="w-32 h-32 mx-auto mb-6 bg-white/10 rounded-full flex items-center justify-center">
-                    <span className="font-roca-one text-4xl">R</span>
+                    <span className="font-roca-one text-4xl">{t('common.siteName').charAt(0)}</span>
                   </div>
                   <p className="font-satoshi text-xl opacity-80">
-                    Remedy GCC App
+                    {t('common.siteName')} GCC App
                   </p>
                   <p className="font-satoshi text-sm opacity-60 mt-2">
                     Coming Soon

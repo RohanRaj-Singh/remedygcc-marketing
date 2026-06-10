@@ -1,6 +1,9 @@
-import type { Metadata } from "next";
+'use client';
+
+import React from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { useI18n } from "@/i18n/I18nContext";
 
 // ============================================================================
 // Types & Interfaces
@@ -8,8 +11,8 @@ import { ArrowLeft } from "lucide-react";
 
 interface Step {
   id: number;
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
 }
 
 // ============================================================================
@@ -19,43 +22,38 @@ interface Step {
 const STEPS: Step[] = [
   {
     id: 1,
-    title: "Browse clinics",
-    description: "Explore our network of certified professionals.",
+    titleKey: "howItWorks.steps.browse.title",
+    descriptionKey: "howItWorks.steps.browse.description",
   },
   {
     id: 2,
-    title: "Book Appointment",
-    description: "Contact the clinic to schedule a session that fits your needs.",
+    titleKey: "howItWorks.steps.book.title",
+    descriptionKey: "howItWorks.steps.book.description",
   },
   {
     id: 3,
-    title: "Free Therapy Sessions",
-    description:
-      "Zero cost. Our seamless program ensures your mental health support is fully covered.",
+    titleKey: "howItWorks.steps.free.title",
+    descriptionKey: "howItWorks.steps.free.description",
   },
   {
     id: 4,
-    title: "Start Healing",
-    description: "Begin your journey to natural wellness.",
+    titleKey: "howItWorks.steps.heal.title",
+    descriptionKey: "howItWorks.steps.heal.description",
   },
 ];
 
 // ============================================================================
 // Reusable Component - StepCard
-// Benefits:
-// - Single responsibility principle
-// - Easy to test in isolation
-// - Reusable across other pages
-// - Consistent styling in one place
 // ============================================================================
 
 interface StepCardProps {
   step: Step;
+  t: (key: string) => string;
 }
 
-function StepCard({ step }: StepCardProps) {
+function StepCard({ step, t }: StepCardProps) {
   // Early return for invalid data
-  if (!step || typeof step.id !== "number" || !step.title) {
+  if (!step || typeof step.id !== "number") {
     return null;
   }
 
@@ -78,40 +76,32 @@ function StepCard({ step }: StepCardProps) {
         id={`step-title-${step.id}`}
         className="font-roca-one text-lg text-primary mb-2"
       >
-        {step.title}
+        {t(step.titleKey)}
       </h3>
 
       {/* Step Description */}
-      <p className="text-gray-600 font-satoshi text-sm">{step.description}</p>
+      <p className="text-gray-600 font-satoshi text-sm">
+        {t(step.descriptionKey)}
+      </p>
     </article>
   );
 }
 
-export const metadata: Metadata = {
-  title: "How It Works | Remedy GCC",
-  description:
-    "Learn how Remedy GCC connects you with certified therapists for natural healing and professional therapy services.",
-};
-
 export default function HowItWorksPage() {
+  const { t } = useI18n();
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-white pt-24 pb-16">
       <div className="text-center px-4">
         <div className="mb-8">
           <span className="inline-block px-4 py-2 bg-primary/10 text-primary font-satoshi font-bold rounded-full text-sm mb-4">
-            Coming Soon
+            {t("howItWorks.label")}
           </span>
           <h1 className="text-5xl md:text-7xl font-roca-one text-primary mb-4">
-            How It Works
+            {t("howItWorks.title")}
           </h1>
           <p className="text-xl text-gray-600 font-satoshi max-w-2xl mx-auto">
-            Our platform connects you with licensed psychologists through a secure,
-            private portal designed to provide professional mental health support at
-            no out-of-pocket cost to you. By utilizing our integrated reimbursement
-            plan, you can access personalized therapy sessions and expert guidance
-            without the burden of upfront fees or complex paperwork. This seamless,
-            100% confidential service ensures your well-being is fully supported by
-            your company while your privacy remains strictly protected.
+            {t("howItWorks.description")}
           </p>
         </div>
 
@@ -121,7 +111,7 @@ export default function HowItWorksPage() {
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-satoshi font-bold rounded-lg hover:bg-primary/90 transition-colors"
           >
             <ArrowLeft size={20} />
-            Back to Home
+            {t("howItWorks.backToHome")}
           </Link>
         </div>
 
@@ -130,13 +120,9 @@ export default function HowItWorksPage() {
           aria-label="How it works steps"
           className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto"
         >
-          <ul
-            role="list"
-            className="contents"
-            aria-label="Four-step process"
-          >
+          <ul role="list" className="contents" aria-label="Four-step process">
             {STEPS.map((step) => (
-              <StepCard key={step.id} step={step} />
+              <StepCard key={step.id} step={step} t={t} />
             ))}
           </ul>
         </nav>

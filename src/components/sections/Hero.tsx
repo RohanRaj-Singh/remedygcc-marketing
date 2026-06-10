@@ -3,8 +3,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Container from '../layout/Container';
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function Hero() {
+  const { t } = useI18n();
+
   return (
     <section className="min-h-screen flex items-center justify-center bg-primary pt-20">
       <Container>
@@ -16,9 +19,9 @@ export default function Hero() {
             transition={{ duration: 0.8, ease: 'easeOut' }}
             className="font-roca-one text-hero-heading text-white mb-8"
           >
-            Your Path to
+            {t('hero.title1')}
             <br />
-            Natural Healing
+            {t('hero.title2')}
           </motion.h1>
 
           {/* CTA Button */}
@@ -28,7 +31,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
           >
             <button className="btn-primary text-xl px-10 py-4">
-              Get Started
+              {t('hero.cta')}
             </button>
           </motion.div>
         </div>
