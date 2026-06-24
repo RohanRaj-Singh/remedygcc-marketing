@@ -31,6 +31,15 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Runtime data (employee/tenant runtime state)
+/data/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Uploads
+public/uploads/
+
+# Claude Code
+.claude/

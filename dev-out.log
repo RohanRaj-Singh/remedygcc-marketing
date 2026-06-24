@@ -1,0 +1,39 @@
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ✓ Ready in 1943ms
+ ○ Compiling /reimbursement ...
+ ✓ Compiled /reimbursement in 2.7s (687 modules)
+ GET /reimbursement 200 in 3001ms
+ ✓ Compiled in 317ms (380 modules)
+ ○ Compiling /reimbursement/employee ...
+ ✓ Compiled /reimbursement/employee in 1106ms (600 modules)
+ GET /reimbursement/employee?tenant=omantel 200 in 1220ms
+ ✓ Compiled /api/employee-access/login in 267ms (354 modules)
+ POST /api/employee-access/login 200 in 472ms
+ POST /api/employee-access/login 401 in 65ms
+ POST /api/employee-access/login 401 in 9ms
+ POST /api/employee-access/login 401 in 10ms
+ ✓ Compiled /api/employee-access/session in 69ms (356 modules)
+ GET /api/employee-access/session 200 in 105ms
+ POST /api/employee-access/login 200 in 67ms
+ GET /api/employee-access/session 200 in 11ms
+ ✓ Compiled /reimbursement/portal in 284ms (665 modules)
+ GET /reimbursement/portal 200 in 450ms
+ ✓ Compiled /api/employee-access/logout in 86ms (384 modules)
+ POST /api/employee-access/logout 200 in 123ms
+ GET /reimbursement/portal 307 in 123ms
+ POST /api/employee-access/login 401 in 69ms
+ POST /api/employee-access/login 401 in 63ms
+ POST /api/employee-access/login 401 in 61ms
+ POST /api/employee-access/login 401 in 59ms
+ POST /api/employee-access/login 429 in 61ms
+ POST /api/employee-access/login 429 in 7ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 2.3s (816 modules)
+ GET /reimbursement 500 in 2897ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 879ms (819 modules)
+ GET /api/public/clinics 404 in 1183ms
+ GET /api/public/clinics 404 in 50ms

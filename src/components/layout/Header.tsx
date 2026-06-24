@@ -79,6 +79,12 @@ export default function Header() {
 
           {/* Right Side - Desktop */}
           <div className="hidden lg:flex items-center gap-4">
+            <Link
+              href="/reimbursement"
+              className="font-satoshi font-bold text-sm text-primary border border-primary/30 rounded-lg px-4 py-2 hover:bg-primary hover:text-white transition-all duration-200"
+            >
+              Sign In
+            </Link>
             {/* Language Switch */}
             <LangToggle />
           </div>
@@ -111,12 +117,13 @@ export default function Header() {
                 </Link>
               ))}
               <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-gray-100">
-                <button className="btn-secondary text-left">
-                  Log In
-                </button>
-                <button className="btn-primary text-center">
-                  Get Started
-                </button>
+                <Link
+                  href="/reimbursement"
+                  className="font-satoshi font-bold text-sm text-center text-primary border border-primary/30 rounded-lg px-4 py-2 hover:bg-primary hover:text-white transition-all duration-200"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
               </div>
             </nav>
           </div>
