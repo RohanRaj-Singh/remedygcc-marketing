@@ -122,7 +122,6 @@ export async function POST(request: NextRequest) {
           signal: AbortSignal.timeout(30_000),
         },
       );
-      );
 
       if (!uploadRes.ok) {
         const uploadErr = await uploadRes.json().catch(() => ({ error: "Upload failed." }));
