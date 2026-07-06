@@ -92,6 +92,24 @@ export interface ClinicCard {
 
 const DEFAULT_CLINIC_IMAGE = "/images/default/logo.png";
 
+/**
+ * Clinic assets (logos, cover images) are stored on and served from the Admin App.
+ * Relative paths like "/assets/clinics/..." need absolute URLs pointing to the Admin App.
+ *
+ * NEXT_PUBLIC_ADMIN_APP_URL must be set at build time so the browser knows where to fetch.
+ * In production: NEXT_PUBLIC_ADMIN_APP_URL=https://admin.remedygcc.com
+ * In development: NEXT_PUBLIC_ADMIN_APP_URL=http://localhost:3001
+ */
+function resolveAssetUrl(path: string | null | undefined): string {
+  if (!path) return DEFAULT_CLINIC_IMAGE;
+  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("data:")) return path;
+  if (path.startsWith("/assets/")) {
+    const origin = process.env.NEXT_PUBLIC_ADMIN_APP_URL;
+    if (origin) return `${origin.replace(/\/$/, "")}${path}`;
+  }
+  return path;
+}
+
 const ICON_INFO_MAP: Record<string, { en: ClinicIconInfo[]; ar: ClinicIconInfo[] }> = {
   "eunoia-clinic": {
     en: [
@@ -127,8 +145,9 @@ function getIconInfo(slug: string): { en: ClinicIconInfo[]; ar: ClinicIconInfo[]
 }
 
 function getImageMeta(clinic: ApiClinic, type: "logo" | "card"): ClinicMedia {
-  const src = type === "logo" ? (clinic.logo || clinic.cardImage || DEFAULT_CLINIC_IMAGE)
+  const raw = type === "logo" ? (clinic.logo || clinic.cardImage || DEFAULT_CLINIC_IMAGE)
     : (clinic.cardImage || clinic.logo || DEFAULT_CLINIC_IMAGE);
+  const src = resolveAssetUrl(raw);
 
   return {
     src,

@@ -6,16 +6,22 @@ const nextConfig = {
       bodySizeLimit: "15mb",
     },
   },
-  async rewrites() {
-    return [
+  images: {
+    remotePatterns: [
       {
-        // Clinic assets (logos, cover images) are stored on the Admin App.
-        // Proxy /assets/clinics/* requests there so images render correctly
-        // without needing administrators to enter absolute URLs.
-        source: "/assets/clinics/:path*",
-        destination: `${process.env.ADMIN_APP_URL ?? "http://127.0.0.1:3001"}/assets/clinics/:path*`,
+        // Clinic assets (logos, cover images) are served from the Admin App
+        protocol: "https",
+        hostname: "admin.remedygcc.com",
       },
-    ];
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
+    ],
   },
 };
 
