@@ -317,12 +317,19 @@ export default function ClaimDetail({
 
               {showReceipt && (
                 <div className="mt-3 rounded-lg border border-gray-200 overflow-hidden bg-gray-50">
-                  <iframe
-                    src={`/api/employee-access/receipts/${claim.reimbursementId}`}
-                    className="w-full h-[500px] border-0"
-                    title="Receipt preview"
-                    sandbox="allow-scripts allow-same-origin"
-                  />
+                  {claim.receiptUrl?.toLowerCase().endsWith('.pdf') ? (
+                    <iframe
+                      src={`/api/employee-access/receipts/${claim.reimbursementId}`}
+                      className="w-full h-[500px] border-0"
+                      title="Receipt preview"
+                    />
+                  ) : (
+                    <img
+                      src={`/api/employee-access/receipts/${claim.reimbursementId}`}
+                      alt="Receipt"
+                      className="w-full h-auto max-h-[500px] object-contain"
+                    />
+                  )}
                   <div className="flex items-center justify-between px-4 py-2 bg-white border-t border-gray-200">
                     <span className="font-satoshi text-xs text-gray-400">
                       Secure preview
