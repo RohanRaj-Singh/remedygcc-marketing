@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/employee-access/session";
 
+export const dynamic = "force-dynamic";
+
 /** URL of the Tenant App API (set via environment variable). */
 const TENANT_APP_URL =
   process.env.TENANT_APP_URL ?? "http://localhost:3100";
@@ -66,6 +68,7 @@ export async function GET(
         {
           method: "GET",
           headers: { "x-admin-api-key": ADMIN_API_KEY },
+          cache: "no-store",
           signal: AbortSignal.timeout(10_000),
         },
       );
