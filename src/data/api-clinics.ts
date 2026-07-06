@@ -1,9 +1,11 @@
 /**
  * API-driven clinic data source.
  *
- * Fetches clinics from the tenant app (which proxies the admin-managed MongoDB).
- * Maps the response to the shape expected by the UI (cardImage, logo, iconInfo, etc.)
- * with sensible defaults for fields the API doesn't provide.
+ * Fetches clinics from the marketing site's own API proxy route.
+ * The proxy forwards to the tenant app, which reads from the admin-managed MongoDB.
+ *
+ * This module must be callable from client components (useEffect), so it fetches
+ * from a same-origin path rather than directly hitting the tenant app.
  *
  * The iconInfo (LucideIcon references) and image metadata (alt text, fit, background)
  * are design-layer data that does not belong in the database — they are mapped here
@@ -12,9 +14,6 @@
 
 import type { LucideIcon } from "lucide-react";
 import { Globe, Star, User } from "lucide-react";
-
-/** URL of the Tenant App API (set via environment variable). */
-const TENANT_APP_URL = process.env.TENANT_APP_URL ?? "http://localhost:3100";
 
 // ── API Response Types ───────────────────────────────────────────────────────
 
@@ -180,8 +179,7 @@ function toClinicCard(api: ApiClinic): ClinicCard {
  */
 export async function getClinics(): Promise<ClinicCard[]> {
   try {
-    const res = await fetch(`${TENANT_APP_URL}/api/clinics`, {
-      next: { revalidate: 300 },
+    const res = await fetch(`/api/public/clinics`, {
       signal: AbortSignal.timeout(10_000),
     });
 

@@ -61,6 +61,8 @@ const en = {
     title: "Find Your Clinic",
     description:
       "Discover our network of partner clinics providing professional services in convenient locations.",
+    loading: "Loading clinics...",
+    empty: "No clinics available at the moment.",
     details: {
       backToClinics: "Back to Clinics",
       aboutClinic: "About Clinic",

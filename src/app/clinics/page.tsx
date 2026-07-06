@@ -42,7 +42,7 @@ export default function ClinicsPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-white pt-28 pb-10">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-gray-500 font-satoshi">{t('clinics.loading') || 'Loading clinics...'}</p>
+          <p className="text-gray-500 font-satoshi">{t('clinics.loading')}</p>
         </div>
       </div>
     );
@@ -73,7 +73,7 @@ export default function ClinicsPage() {
         {!error && clinics.length === 0 && (
           <div className="text-center py-16">
             <p className="text-gray-500 font-satoshi text-lg">
-              {t('clinics.empty') || 'No clinics available at the moment.'}
+              {t('clinics.empty')}
             </p>
           </div>
         )}
