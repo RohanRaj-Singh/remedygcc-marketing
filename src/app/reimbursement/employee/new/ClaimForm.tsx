@@ -178,7 +178,7 @@ export default function ClaimForm({
       setLoading(true);
 
       try {
-        // Read file as base64 data URL
+        // Read file as base64 using FileReader (supports all binary types correctly)
         let fileData = "";
         let fileName = "";
         let mimeType = "";
@@ -186,13 +186,17 @@ export default function ClaimForm({
         if (file) {
           fileName = file.name;
           mimeType = file.type;
-          const buffer = await file.arrayBuffer();
-          const bytes = new Uint8Array(buffer);
-          let binary = "";
-          for (let i = 0; i < bytes.length; i++) {
-            binary += String.fromCharCode(bytes[i]);
-          }
-          fileData = btoa(binary);
+          fileData = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              const result = reader.result as string;
+              // result is "data:...;base64,<base64>"
+              const base64 = result.includes(",") ? result.split(",")[1] : result;
+              resolve(base64);
+            };
+            reader.onerror = () => reject(new Error("Failed to read file."));
+            reader.readAsDataURL(file);
+          });
         }
 
         const res = await fetch("/api/employee-access/reimbursements", {

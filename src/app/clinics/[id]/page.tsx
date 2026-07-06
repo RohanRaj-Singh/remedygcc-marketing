@@ -11,10 +11,13 @@ import {
   Mail,
   MapPin,
   Phone,
+  Loader2,
+  AlertCircle,
   type LucideIcon,
 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { getClinicById } from "@/data/clinics";
+import { getClinicById } from "@/data/api-clinics";
+import type { ClinicCard, ClinicContact } from "@/data/api-clinics";
 import { useI18n } from "@/i18n/I18nContext";
 
 // Dynamically import the map component with SSR disabled to avoid Leaflet window errors
@@ -48,7 +51,57 @@ export default function ClinicPage() {
   const { id } = useParams<{ id: string }>();
   const { t, locale } = useI18n();
 
-  const clinic = getClinicById(Number.parseInt(id ?? "1", 10));
+  const [clinic, setClinic] = React.useState<ClinicCard | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    setError(null);
+
+    getClinicById(id)
+      .then((data) => {
+        if (mounted) {
+          if (data) {
+            setClinic(data);
+          } else {
+            setError("Clinic not found.");
+          }
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setError("Failed to load clinic.");
+          setLoading(false);
+        }
+      });
+
+    return () => { mounted = false; };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-white pt-28 pb-10">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error || !clinic) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-white pt-28 pb-10">
+        <div className="text-center">
+          <AlertCircle className="h-10 w-10 text-red-500 mx-auto mb-4" />
+          <p className="text-gray-600 font-satoshi">{error || "Clinic not found."}</p>
+          <Link href="/clinics" className="inline-block mt-4 text-primary hover:underline font-satoshi">
+            &larr; {t('clinics.details.backToClinics')}
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Locale-aware fields
   const displayName = locale === "ar" ? clinic.nameAr : clinic.name;
@@ -57,11 +110,6 @@ export default function ClinicPage() {
     locale === "ar" ? clinic.descriptionAr : clinic.description;
   const displayWorkingHours =
     locale === "ar" ? clinic.workingHoursAr : clinic.workingHours;
-  const displayIconInfo =
-    locale === "ar" ? clinic.iconInfoAr : clinic.iconInfo;
-
-  // Gallery images temporarily hidden
-  // const [heroImage, ...secondaryImages] = clinic.gallery;
 
   const contactItems = [
     clinic.contact.phone
@@ -127,19 +175,9 @@ export default function ClinicPage() {
             </div>
           </div>
 
-          {/* Gallery images temporarily hidden
-          {heroImage ? (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-12">
-              ...
-            </div>
-          ) : null}
-          */}
-
           {/* About Clinic, Working Hours and Map */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-            {/* About Clinic and Working Hours on Left */}
             <div className="lg:col-span-2">
-              {/* About Clinic */}
               <div className="mb-8">
                 <h2 className="text-2xl font-roca-one text-primary mb-4">
                   {t("clinics.details.aboutClinic")}
@@ -149,40 +187,30 @@ export default function ClinicPage() {
                 </p>
               </div>
 
-              {/* Working Hours Table */}
-              <div>
-                <h2 className="text-2xl font-roca-one text-primary mb-4">
-                  {t("clinics.details.workingHours")}
-                </h2>
-                <div className="bg-gray-50 rounded-xl">
-                  <table className="w-full">
-                    <tbody>
-                      {displayWorkingHours.map(
-                        (
-                          item: { day: string; hours: string },
-                          index: number,
-                        ) => (
-                          <tr
-                            key={item.day}
-                            className={
-                              index !== displayWorkingHours.length - 1
-                                ? "border-b border-gray-200"
-                                : ""
-                            }
-                          >
-                            <td className="py-3 px-4 font-satoshi text-gray-800">
-                              {item.day}
-                            </td>
-                            <td className="py-3 px-4 font-satoshi text-gray-600 text-end">
-                              {item.hours}
-                            </td>
-                          </tr>
-                        ),
-                      )}
-                    </tbody>
-                  </table>
+              {displayWorkingHours.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-roca-one text-primary mb-4">
+                    {t("clinics.details.workingHours")}
+                  </h2>
+                  <div className="bg-gray-50 rounded-xl">
+                    <table className="w-full">
+                      <tbody>
+                        {displayWorkingHours.map(
+                          (item: { day: string; hours: string }, index: number) => (
+                            <tr
+                              key={item.day}
+                              className={index !== displayWorkingHours.length - 1 ? "border-b border-gray-200" : ""}
+                            >
+                              <td className="py-3 px-4 font-satoshi text-gray-800">{item.day}</td>
+                              <td className="py-3 px-4 font-satoshi text-gray-600 text-end">{item.hours}</td>
+                            </tr>
+                          ),
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Map on Right */}
@@ -198,17 +226,18 @@ export default function ClinicPage() {
                 />
               </div>
 
-              {/* Open in Google Maps */}
-              <a
-                href={clinic.googleMapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 w-full justify-center px-4 py-3 mb-6 bg-primary text-white font-satoshi font-bold rounded-xl hover:bg-primary/90 transition-colors"
-              >
-                <MapPin size={18} />
-                {locale === "ar" ? "فتح في خرائط Google" : "Open in Google Maps"}
-                <ExternalLink size={16} />
-              </a>
+              {clinic.googleMapsUrl && (
+                <a
+                  href={clinic.googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 w-full justify-center px-4 py-3 mb-6 bg-primary text-white font-satoshi font-bold rounded-xl hover:bg-primary/90 transition-colors"
+                >
+                  <MapPin size={18} />
+                  {locale === "ar" ? "فتح في خرائط Google" : "Open in Google Maps"}
+                  <ExternalLink size={16} />
+                </a>
+              )}
 
               {/* Contact Information Below Map */}
               <div>
@@ -226,21 +255,13 @@ export default function ClinicPage() {
                         <a
                           href={item.href}
                           className="font-satoshi text-gray-600 hover:text-primary transition-colors break-all"
-                          target={
-                            item.href.startsWith("http") ? "_blank" : undefined
-                          }
-                          rel={
-                            item.href.startsWith("http")
-                              ? "noopener noreferrer"
-                              : undefined
-                          }
+                          target={item.href.startsWith("http") ? "_blank" : undefined}
+                          rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
                         >
                           {item.label}
                         </a>
                       ) : (
-                        <span className="font-satoshi text-gray-600">
-                          {item.label}
-                        </span>
+                        <span className="font-satoshi text-gray-600">{item.label}</span>
                       )}
                     </div>
                   ))}
