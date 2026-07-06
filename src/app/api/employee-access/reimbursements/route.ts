@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/employee-access/session";
+import { getSession, isInactiveEmployeeError } from "@/lib/employee-access/session";
 import { getTenantBySlug } from "@/data/tenants";
 import type { EmployeeSession } from "@/types/employee-access";
 
@@ -215,6 +215,22 @@ export async function POST(request: NextRequest) {
         );
       } catch {
         // Best-effort cleanup — file will be collected later if this fails
+      }
+
+      // If employee has been deactivated, clear the session immediately
+      if (isInactiveEmployeeError(claimRes.status, claimData)) {
+        const response = NextResponse.json<CreateClaimResponse>(
+          { success: false, error: "Session expired. Please log in again.", errorCode: "SESSION_EXPIRED" },
+          { status: 401 },
+        );
+        response.cookies.set("employee_session", "", {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 0,
+        });
+        return response;
       }
 
       return NextResponse.json<CreateClaimResponse>(

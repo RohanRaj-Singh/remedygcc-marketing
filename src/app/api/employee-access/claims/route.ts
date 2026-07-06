@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/employee-access/session";
+import { getSession, isInactiveEmployeeError } from "@/lib/employee-access/session";
 
 export const dynamic = "force-dynamic";
 
@@ -75,10 +75,12 @@ export async function GET(request: NextRequest) {
     }
 
     if (!tenantRes.ok) {
+      let errorBody: Record<string, unknown> | null = null;
       let errorMsg = "Failed to fetch claims.";
       try {
         const body = await tenantRes.text();
         const parsed = JSON.parse(body);
+        errorBody = parsed;
         if (typeof parsed?.error === "string") {
           errorMsg = parsed.error;
         } else if (typeof parsed?.error?.message === "string") {
@@ -87,6 +89,23 @@ export async function GET(request: NextRequest) {
       } catch {
         // keep default
       }
+
+      // If employee has been deactivated, clear the session immediately
+      if (isInactiveEmployeeError(tenantRes.status, errorBody)) {
+        const response = NextResponse.json<ClaimsResponse>(
+          { success: false, error: "Session expired. Please log in again." },
+          { status: 401 },
+        );
+        response.cookies.set("employee_session", "", {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 0,
+        });
+        return response;
+      }
+
       return NextResponse.json<ClaimsResponse>(
         { success: false, error: errorMsg },
         { status: tenantRes.status },

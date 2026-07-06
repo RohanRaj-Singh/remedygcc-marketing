@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/employee-access/session";
+import { getSession, isInactiveEmployeeError } from "@/lib/employee-access/session";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +42,24 @@ export async function GET(
     );
 
     if (!tenantRes.ok) {
-      const errorBody = await tenantRes.json().catch(() => null);
+      const errorBody = await tenantRes.json().catch(() => null) as Record<string, unknown> | null;
+
+      // If employee has been deactivated, clear the session immediately
+      if (isInactiveEmployeeError(tenantRes.status, errorBody)) {
+        const response = NextResponse.json(
+          { error: "Session expired. Please log in again." },
+          { status: 401 },
+        );
+        response.cookies.set("employee_session", "", {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 0,
+        });
+        return response;
+      }
+
       return NextResponse.json(
         { error: errorBody?.error ?? "Failed to retrieve receipt." },
         { status: tenantRes.status },

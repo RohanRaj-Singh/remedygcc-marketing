@@ -99,6 +99,18 @@ export function createSession(params: {
 }
 
 /**
+ * Check whether a Tenant App error response indicates the employee account
+ * has been deactivated. If so, the marketing site should clear the session
+ * cookie so the employee is logged out immediately.
+ */
+export function isInactiveEmployeeError(status: number, errorBody: Record<string, unknown> | null): boolean {
+  if (status !== 403) return false;
+  if (!errorBody || typeof errorBody.error !== "string") return false;
+  const msg = errorBody.error.toLowerCase();
+  return msg.includes("not active") || msg.includes("inactive") || msg.includes("disabled");
+}
+
+/**
  * Get the current employee session from the request cookies.
  * Returns null if not authenticated or session expired/invalid.
  */
