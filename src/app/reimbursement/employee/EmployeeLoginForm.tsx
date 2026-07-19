@@ -3,83 +3,68 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft,
   Eye,
   EyeOff,
-  Key,
-  User,
-  AlertCircle,
+  Mail,
   Lock,
+  Building2,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
-import type { LoginResponse } from "@/types/employee-access";
+import type { Tenant, LoginResponse } from "@/types/employee-access";
 
 interface EmployeeLoginFormProps {
-  tenantSlug: string;
-  tenant: { id: string; name: string; slug: string; description?: string } | null;
+  tenants: Tenant[];
+  preselectedSlug: string;
 }
 
-export default function EmployeeLoginForm({ tenantSlug, tenant }: EmployeeLoginFormProps) {
+const ERROR_MESSAGES: Record<string, string> = {
+  NOT_REGISTERED:
+    "This account has not been registered yet. Please sign up first.",
+  INVALID_PASSWORD: "Invalid email or password. Please try again.",
+  EMPLOYEE_LOCKED: "Too many attempts. Please try again later.",
+  EMPLOYEE_SUSPENDED:
+    "This account has been suspended. Please contact your administrator.",
+  EMPLOYEE_INACTIVE: "This account is no longer active.",
+  TENANT_NOT_FOUND: "Invalid organization. Please try again.",
+};
+
+export default function EmployeeLoginForm({
+  tenants,
+  preselectedSlug,
+}: EmployeeLoginFormProps) {
   const router = useRouter();
 
-  const [employeeId, setEmployeeId] = useState("");
-  const [pin, setPin] = useState("");
-  const [showPin, setShowPin] = useState(false);
+  const [selectedSlug, setSelectedSlug] = useState(preselectedSlug);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [lockedUntil, setLockedUntil] = useState<string | null>(null);
-
-  // If no valid tenant slug, show a selection prompt
-  if (!tenant) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-primary/5 to-white pt-28 pb-10">
-        <div className="w-full max-w-md mx-auto px-4 text-center">
-          <Link
-            href="/reimbursement"
-            className="inline-flex items-center gap-2 text-sm text-primary font-satoshi hover:underline mb-8"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to corporate selection
-          </Link>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-            <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-            <h2 className="font-satoshi font-bold text-lg text-primary mb-2">
-              No Organisation Selected
-            </h2>
-            <p className="text-gray-500 font-satoshi text-sm mb-6">
-              Please select your organisation first to access the employee
-              portal.
-            </p>
-            <Link
-              href="/reimbursement"
-              className="inline-block bg-primary text-white font-satoshi font-bold px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors"
-            >
-              Select Organisation
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const [errorCode, setErrorCode] = useState<string | null>(null);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
       setError("");
-      setLockedUntil(null);
+      setErrorCode(null);
 
-      if (!employeeId.trim()) {
-        setError("Please enter your Employee ID.");
+      // Client-side validation
+      if (!selectedSlug) {
+        setError("Please select your organization.");
+        setErrorCode("TENANT_NOT_FOUND");
         return;
       }
 
-      if (!pin.trim()) {
-        setError("Please enter your PIN.");
+      if (!email.trim() || !email.includes("@")) {
+        setError("Please enter a valid email address.");
+        setErrorCode("INVALID_CREDENTIALS");
         return;
       }
 
-      if (pin.length < 4) {
-        setError("PIN must be at least 4 digits.");
+      if (!password) {
+        setError("Password is required.");
+        setErrorCode("INVALID_PASSWORD");
         return;
       }
 
@@ -90,20 +75,28 @@ export default function EmployeeLoginForm({ tenantSlug, tenant }: EmployeeLoginF
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            tenantSlug,
-            employeeCode: employeeId.trim(),
-            pin,
+            tenantSlug: selectedSlug,
+            email: email.trim(),
+            password,
           }),
         });
 
         const data: LoginResponse = await res.json();
 
         if (!data.success) {
-          if (data.errorCode === "EMPLOYEE_LOCKED" && data.lockedUntil) {
-            setLockedUntil(data.lockedUntil);
-          }
-          setError(data.error || "Login failed. Please try again.");
+          setErrorCode(data.errorCode ?? null);
+          setError(
+            data.error
+              ? ERROR_MESSAGES[data.errorCode ?? ""] ?? data.error
+              : "Login failed. Please try again.",
+          );
           setLoading(false);
+          return;
+        }
+
+        // Check if password change is required
+        if (data.mustChangePassword) {
+          router.push("/reimbursement/employee/change-password?mustChange=true");
           return;
         }
 
@@ -111,23 +104,15 @@ export default function EmployeeLoginForm({ tenantSlug, tenant }: EmployeeLoginF
         router.push("/reimbursement/portal");
       } catch {
         setError("An error occurred. Please try again.");
+        setErrorCode(null);
         setLoading(false);
       }
     },
-    [employeeId, pin, tenantSlug, router],
+    [selectedSlug, email, password, router],
   );
 
-  // Compute lockout display info
-  const lockoutInfo = lockedUntil
-    ? (() => {
-        const remainingMs = new Date(lockedUntil).getTime() - Date.now();
-        const remainingMinutes = Math.max(1, Math.ceil(remainingMs / 60000));
-        return {
-          remainingMinutes,
-          text: `Too many failed attempts. Please try again in ${remainingMinutes} minute${remainingMinutes === 1 ? "" : "s"}.`,
-        };
-      })()
-    : null;
+  // Get the selected tenant for display
+  const selectedTenant = tenants.find((t) => t.slug === selectedSlug);
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-primary/5 to-white pt-28 pb-10">
@@ -137,103 +122,147 @@ export default function EmployeeLoginForm({ tenantSlug, tenant }: EmployeeLoginF
           href="/reimbursement"
           className="inline-flex items-center gap-2 text-sm text-primary font-satoshi hover:underline mb-8"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Change organisation
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back to employee access
         </Link>
 
         {/* Login Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-          {/* Tenant header */}
+          {/* Header */}
           <div className="text-center mb-8">
             <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <User className="w-7 h-7 text-primary" />
+              <Building2 className="w-7 h-7 text-primary" />
             </div>
             <h1 className="font-roca-one text-2xl text-primary mb-1">
-              {tenant.name}
+              Employee Sign In
             </h1>
             <p className="text-gray-500 font-satoshi text-sm">
-              Enter your Employee ID and PIN to continue
+              Sign in to submit and track your claims
             </p>
           </div>
 
-          {/* Lockout banner */}
-          {lockoutInfo && (
+          {/* Error message */}
+          {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
-              <Lock className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
               <div>
-                <p className="font-satoshi font-bold text-sm text-red-700 mb-1">
-                  Account Locked
-                </p>
-                <p className="font-satoshi text-xs text-red-600">
-                  {lockoutInfo.text}
-                </p>
+                <p className="font-satoshi text-sm text-red-700">{error}</p>
+                {errorCode === "NOT_REGISTERED" && (
+                  <Link
+                    href="/reimbursement/employee/register"
+                    className="font-satoshi text-xs text-red-600 underline mt-1 inline-block hover:no-underline"
+                  >
+                    Sign up here
+                  </Link>
+                )}
               </div>
             </div>
           )}
 
-          {/* Error message */}
-          {error && !lockoutInfo && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-              <p className="font-satoshi text-sm text-red-700">{error}</p>
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Employee ID */}
+            {/* Organization */}
             <div>
               <label
-                htmlFor="employeeId"
+                htmlFor="organization"
                 className="block font-satoshi font-bold text-sm text-primary mb-1.5"
               >
-                Employee ID
+                Organization
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  id="employeeId"
-                  type="text"
-                  value={employeeId}
-                  onChange={(e) => setEmployeeId(e.target.value)}
-                  placeholder="e.g. OMT-001"
+                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                <select
+                  id="organization"
+                  value={selectedSlug}
+                  onChange={(e) => setSelectedSlug(e.target.value)}
                   disabled={loading}
-                  autoComplete="off"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors appearance-none"
+                >
+                  <option value="">Select your organization</option>
+                  {tenants.map((t) => (
+                    <option key={t.slug} value={t.slug}>
+                      {t.name}
+                    </option>
+                  ))}
+                </select>
+                <svg
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Email */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block font-satoshi font-bold text-sm text-primary mb-1.5"
+              >
+                Email
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@organization.com"
+                  disabled={loading}
+                  autoComplete="email"
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 />
               </div>
             </div>
 
-            {/* PIN */}
+            {/* Password */}
             <div>
               <label
-                htmlFor="pin"
+                htmlFor="password"
                 className="block font-satoshi font-bold text-sm text-primary mb-1.5"
               >
-                PIN
+                Password
               </label>
               <div className="relative">
-                <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  id="pin"
-                  type={showPin ? "text" : "password"}
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  placeholder="Enter your PIN"
-                  disabled={loading || !!lockoutInfo}
-                  maxLength={10}
-                  autoComplete="off"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  disabled={loading}
+                  autoComplete="current-password"
                   className="w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPin(!showPin)}
+                  onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   tabIndex={-1}
-                  aria-label={showPin ? "Hide PIN" : "Show PIN"}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPin ? (
+                  {showPassword ? (
                     <EyeOff className="w-5 h-5" />
                   ) : (
                     <Eye className="w-5 h-5" />
@@ -245,7 +274,7 @@ export default function EmployeeLoginForm({ tenantSlug, tenant }: EmployeeLoginF
             {/* Submit */}
             <button
               type="submit"
-              disabled={loading || !!lockoutInfo}
+              disabled={loading}
               className="w-full bg-primary text-white font-satoshi font-bold py-3 px-6 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
@@ -277,13 +306,24 @@ export default function EmployeeLoginForm({ tenantSlug, tenant }: EmployeeLoginF
               )}
             </button>
           </form>
+
+          {/* Sign Up link */}
+          <div className="mt-6 text-center">
+            <p className="font-satoshi text-sm text-gray-500">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/reimbursement/employee/register"
+                className="text-primary font-bold hover:underline"
+              >
+                Sign Up
+              </Link>
+            </p>
+          </div>
         </div>
 
         {/* Help text */}
         <p className="text-center text-xs text-gray-400 font-satoshi mt-6">
-          Your PIN is provided by your organisation&apos;s HR department.
-          <br />
-          If you don&apos;t have a PIN, please contact your HR administrator.
+          Contact your organization&apos;s administrator if you need assistance.
         </p>
       </div>
     </div>

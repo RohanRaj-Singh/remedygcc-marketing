@@ -32,7 +32,7 @@ interface ClaimsListProps {
   tenantName: string;
 }
 
-type FilterValue = "all" | "pending" | "approved" | "rejected" | "frozen" | "paid";
+type FilterValue = "all" | "pending" | "in_progress" | "approved" | "rejected" | "frozen" | "paid";
 
 // ── Status helpers ─────────────────────────────────────────────────────────
 
@@ -40,6 +40,10 @@ const STATUS_CONFIG: Record<string, { label: string; class: string }> = {
   pending: {
     label: "Pending",
     class: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  in_progress: {
+    label: "In Progress",
+    class: "bg-blue-50 text-blue-700 border-blue-200",
   },
   approved: {
     label: "Approved",
@@ -51,7 +55,7 @@ const STATUS_CONFIG: Record<string, { label: string; class: string }> = {
   },
   frozen: {
     label: "Frozen",
-    class: "bg-blue-50 text-blue-700 border-blue-200",
+    class: "bg-sky-50 text-sky-700 border-sky-200",
   },
   paid: {
     label: "Paid",
@@ -62,6 +66,7 @@ const STATUS_CONFIG: Record<string, { label: string; class: string }> = {
 const FILTER_OPTIONS: { value: FilterValue; label: string }[] = [
   { value: "all", label: "All" },
   { value: "pending", label: "Pending" },
+  { value: "in_progress", label: "In Progress" },
   { value: "approved", label: "Approved" },
   { value: "rejected", label: "Rejected" },
   { value: "frozen", label: "Frozen" },

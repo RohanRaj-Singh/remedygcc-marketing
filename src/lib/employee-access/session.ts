@@ -82,12 +82,14 @@ export function parseSessionCookieValue(raw: string): EmployeeSession | null {
  * Session expires in 24 hours.
  */
 export function createSession(params: {
+  employeeId: string;
   employeeCode: string;
   employeeName: string;
   tenantId: string;
   tenantName: string;
 }): string {
   const session: EmployeeSession = {
+    employeeId: params.employeeId,
     employeeCode: params.employeeCode,
     employeeName: params.employeeName,
     tenantId: params.tenantId,
@@ -107,7 +109,7 @@ export function isInactiveEmployeeError(status: number, errorBody: Record<string
   if (status !== 403) return false;
   if (!errorBody || typeof errorBody.error !== "string") return false;
   const msg = errorBody.error.toLowerCase();
-  return msg.includes("not active") || msg.includes("inactive") || msg.includes("disabled");
+  return msg.includes("not active") || msg.includes("inactive") || msg.includes("disabled") || msg.includes("suspended");
 }
 
 /**

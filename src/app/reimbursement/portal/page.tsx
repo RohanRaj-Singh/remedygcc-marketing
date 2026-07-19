@@ -1,15 +1,52 @@
-import { redirect } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getSession } from "@/lib/employee-access/session";
-import { User, Clock, FileText } from "lucide-react";
+import { User, Clock, FileText, Lock, Loader2 } from "lucide-react";
 import PortalLogoutButton from "./PortalLogoutButton";
 
-export default function PortalPage() {
-  const session = getSession();
+interface SessionData {
+  employeeId: string;
+  employeeCode: string;
+  employeeName: string;
+  tenantId: string;
+  tenantName: string;
+  expiresAt: string;
+}
 
-  if (!session) {
-    redirect("/reimbursement/employee");
+export default function PortalPage() {
+  const router = useRouter();
+  const [session, setSession] = useState<SessionData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkSession() {
+      try {
+        const res = await fetch("/api/employee-access/session");
+        const data = await res.json();
+        if (data.authenticated && data.session) {
+          setSession(data.session);
+        } else {
+          router.push("/reimbursement/employee");
+        }
+      } catch {
+        router.push("/reimbursement/employee");
+      }
+      setLoading(false);
+    }
+    checkSession();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] bg-gradient-to-br from-primary/5 to-white flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
   }
+
+  if (!session) return null;
 
   const formatDate = (iso: string) => {
     return new Date(iso).toLocaleDateString("en-US", {
@@ -36,7 +73,7 @@ export default function PortalPage() {
                 Welcome, {session.employeeName}
               </h1>
               <p className="text-gray-500 font-satoshi text-lg">
-                {session.tenantName} — Employee Access Portal
+                {session.tenantName} &mdash; Employee Access Portal
               </p>
             </div>
             <PortalLogoutButton />
@@ -54,9 +91,7 @@ export default function PortalPage() {
               <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform origin-left">
                 <FileText className="w-7 h-7 text-primary" />
               </div>
-              <h2 className="font-satoshi font-bold text-primary text-xl mb-2">
-                New Claim
-              </h2>
+              <h2 className="font-satoshi font-bold text-primary text-xl mb-2">New Claim</h2>
               <p className="font-satoshi text-sm text-gray-500 mb-6">
                 Submit a reimbursement claim for therapy or counselling sessions.
               </p>
@@ -77,17 +112,28 @@ export default function PortalPage() {
                 <FileText className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
               </div>
               <div>
-                <h2 className="font-satoshi font-bold text-primary text-lg">
-                  My Claims
-                </h2>
-                <p className="font-satoshi text-xs text-gray-400">
-                  Track your submitted claims
-                </p>
+                <h2 className="font-satoshi font-bold text-primary text-lg">My Claims</h2>
+                <p className="font-satoshi text-xs text-gray-400">Track your submitted claims</p>
               </div>
             </div>
-            <p className="font-satoshi text-sm text-gray-500">
-              View the status of your reimbursement claims.
-            </p>
+            <p className="font-satoshi text-sm text-gray-500">View the status of your reimbursement claims.</p>
+          </Link>
+
+          {/* Account Settings */}
+          <Link
+            href="/reimbursement/employee/profile"
+            className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-primary/20 transition-all duration-200 group"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Lock className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+              </div>
+              <div>
+                <h2 className="font-satoshi font-bold text-primary text-lg">Account Settings</h2>
+                <p className="font-satoshi text-xs text-gray-400">Profile, bank details &amp; security</p>
+              </div>
+            </div>
+            <p className="font-satoshi text-sm text-gray-500">Update your name, phone number, bank details, and password.</p>
           </Link>
 
           {/* Quick info */}
@@ -97,12 +143,8 @@ export default function PortalPage() {
                 <User className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h2 className="font-satoshi font-bold text-primary text-lg">
-                  {session.employeeName}
-                </h2>
-                <p className="font-satoshi text-xs text-gray-400">
-                  {session.employeeCode} &middot; {session.tenantName}
-                </p>
+                <h2 className="font-satoshi font-bold text-primary text-lg">{session.employeeName}</h2>
+                <p className="font-satoshi text-xs text-gray-400">{session.employeeCode} &middot; {session.tenantName}</p>
               </div>
             </div>
             <p className="font-satoshi text-xs text-gray-400 leading-relaxed">
@@ -113,10 +155,7 @@ export default function PortalPage() {
 
         {/* Footer */}
         <div className="text-center mt-8">
-          <Link
-            href="/"
-            className="text-sm text-gray-400 font-satoshi hover:text-primary transition-colors"
-          >
+          <Link href="/" className="text-sm text-gray-400 font-satoshi hover:text-primary transition-colors">
             Back to Remedy GCC
           </Link>
         </div>

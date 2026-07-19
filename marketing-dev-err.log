@@ -1,0 +1,38 @@
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ ./src/lib/employee-access/session.ts
+Error: 
+  [31mx[0m You're importing a component that needs next/headers. That only works in a Server Component which is not supported in the pages/ directory. Read more: https://nextjs.org/docs/getting-started/
+  [31m|[0m react-essentials#server-components
+  [31m|[0m 
+  [31m|[0m 
+   ,-[[36;1;4mC:\Users\Rohan Raj Singh\Projects\RemedyGCC\remedygcc-marketing\src\lib\employee-access\session.ts[0m:1:1]
+ [2m1[0m | import { createHmac, timingSafeEqual } from "node:crypto";
+ [2m2[0m | import { cookies } from "next/headers";
+   : [31;1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+ [2m3[0m | import type { EmployeeSession } from "@/types/employee-access";
+ [2m4[0m | 
+ [2m5[0m | /** Cookie name for the employee session. */
+   `----
+
+Import trace for requested module:
+./src/lib/employee-access/session.ts
+./src/app/reimbursement/employee/profile/page.tsx
+ ⨯ ./src/lib/employee-access/session.ts
+Error: 
+  [31mx[0m You're importing a component that needs next/headers. That only works in a Server Component which is not supported in the pages/ directory. Read more: https://nextjs.org/docs/getting-started/
+  [31m|[0m react-essentials#server-components
+  [31m|[0m 
+  [31m|[0m 
+   ,-[[36;1;4mC:\Users\Rohan Raj Singh\Projects\RemedyGCC\remedygcc-marketing\src\lib\employee-access\session.ts[0m:1:1]
+ [2m1[0m | import { createHmac, timingSafeEqual } from "node:crypto";
+ [2m2[0m | import { cookies } from "next/headers";
+   : [31;1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+ [2m3[0m | import type { EmployeeSession } from "@/types/employee-access";
+ [2m4[0m | 
+ [2m5[0m | /** Cookie name for the employee session. */
+   `----
+
+Import trace for requested module:
+./src/lib/employee-access/session.ts
+./src/app/reimbursement/employee/profile/page.tsx
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.

@@ -1,0 +1,23 @@
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3001
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 3.1s
+ ○ Compiling /reimbursement/employee/new ...
+ ✓ Compiled /reimbursement/portal in 16.4s (739 modules)
+ GET /reimbursement/portal 200 in 7309ms
+ GET /_next/static/webpack/8f3d605bcc0413dd.webpack.hot-update.json 404 in 17751ms
+ GET /reimbursement/portal 200 in 279ms
+ ○ Compiling /reimbursement/employee/profile ...
+ GET /reimbursement/employee/profile 500 in 141ms
+ GET /reimbursement/employee/profile 500 in 76ms
+ ✓ Compiled /_not-found in 851ms (846 modules)
+ GET /_next/static/webpack/8f3d605bcc0413dd.webpack.hot-update.json 404 in 612ms
+ ✓ Compiled /reimbursement/employee/profile in 331ms (384 modules)
+ GET /reimbursement/employee/profile 200 in 444ms
+ ○ Compiling /reimbursement/employee ...
+ ✓ Compiled /reimbursement/employee in 508ms (877 modules)
+ ✓ Compiled in 572ms (989 modules)
+ ✓ Compiled in 647ms (989 modules)
+[?25h

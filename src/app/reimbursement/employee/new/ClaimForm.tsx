@@ -8,6 +8,7 @@ import {
   FileText,
   CheckCircle,
   AlertCircle,
+  AlertTriangle,
   DollarSign,
   Building2,
   Calendar,
@@ -70,6 +71,14 @@ export default function ClaimForm({
   const [serviceDate, setServiceDate] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
+  const [sessionCount, setSessionCount] = useState(1);
+  const [sessionTypes, setSessionTypes] = useState<string[]>([]);
+  const [sessionFor, setSessionFor] = useState("");
+  const [sessionForOther, setSessionForOther] = useState("");
+  const [contactCountryCode, setContactCountryCode] = useState("+968");
+  const [contactNumber, setContactNumber] = useState("");
+  const [bankAccountNumber, setBankAccountNumber] = useState("");
+  const [bankName, setBankName] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
 
@@ -208,6 +217,14 @@ export default function ClaimForm({
             amount: parseFloat(amount),
             description: description.trim(),
             serviceDate,
+            sessionCount,
+            sessionTypes: sessionTypes.length > 0 ? sessionTypes : undefined,
+            sessionFor: sessionFor || undefined,
+            sessionForOther: sessionForOther || undefined,
+            contactCountryCode: contactCountryCode || undefined,
+            contactNumber: contactNumber || undefined,
+            bankAccountNumber: bankAccountNumber || undefined,
+            bankName: bankName || undefined,
             fileData,
             fileName,
             mimeType,
@@ -249,6 +266,14 @@ export default function ClaimForm({
     setServiceDate("");
     setAmount("");
     setDescription("");
+    setSessionCount(1);
+    setSessionTypes([]);
+    setSessionFor("");
+    setSessionForOther("");
+    setContactCountryCode("+968");
+    setContactNumber("");
+    setBankAccountNumber("");
+    setBankName("");
     setFile(null);
     setFilePreview(null);
     setErrors({});
@@ -538,6 +563,167 @@ export default function ClaimForm({
             </div>
           </div>
 
+          {/* Session Count — Slider */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="font-satoshi font-bold text-primary text-lg mb-4">
+              How many sessions?
+            </h2>
+            <div className="flex items-center gap-4">
+              <input
+                type="range"
+                min={1}
+                max={20}
+                value={sessionCount}
+                onChange={(e) => setSessionCount(Number(e.target.value))}
+                disabled={loading}
+                className="flex-1 h-2 rounded-full appearance-none cursor-pointer bg-gray-200 accent-primary"
+              />
+              <span className="font-satoshi text-sm font-medium text-primary w-20 text-right">
+                {sessionCount} session{sessionCount !== 1 ? "s" : ""}
+              </span>
+            </div>
+          </div>
+
+          {/* Session Type — Tags */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="font-satoshi font-bold text-primary text-lg mb-1">
+              Type of session?
+            </h2>
+            <p className="font-satoshi text-xs text-gray-400 mb-4">Select all that apply</p>
+            <div className="flex flex-wrap gap-2">
+              {["Intake Session", "Assessment", "Individual", "Follow-up"].map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() =>
+                    setSessionTypes((prev) =>
+                      prev.includes(type)
+                        ? prev.filter((t) => t !== type)
+                        : [...prev, type],
+                    )
+                  }
+                  disabled={loading}
+                  className={`rounded-full px-4 py-2 font-satoshi text-sm font-medium transition-colors ${
+                    sessionTypes.includes(type)
+                      ? "bg-primary text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Session For — Radio */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="font-satoshi font-bold text-primary text-lg mb-4">
+              Who was this session for?
+            </h2>
+            <div className="space-y-3">
+              {[
+                { value: "myself", label: "Myself" },
+                { value: "family_member", label: "Family member" },
+                { value: "other", label: "Other" },
+              ].map((option) => (
+                <label
+                  key={option.value}
+                  className="flex items-center gap-3 cursor-pointer"
+                >
+                  <input
+                    type="radio"
+                    name="claimSessionFor"
+                    value={option.value}
+                    checked={sessionFor === option.value}
+                    onChange={(e) => setSessionFor(e.target.value)}
+                    disabled={loading}
+                    className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                  />
+                  <span className="font-satoshi text-sm text-primary">{option.label}</span>
+                </label>
+              ))}
+            </div>
+            {sessionFor === "other" && (
+              <input
+                type="text"
+                value={sessionForOther}
+                onChange={(e) => setSessionForOther(e.target.value)}
+                placeholder="Please specify..."
+                disabled={loading}
+                className="mt-3 w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              />
+            )}
+          </div>
+
+          {/* Contact Number */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="font-satoshi font-bold text-primary text-lg mb-4">
+              Contact number
+            </h2>
+            <div className="flex gap-2">
+              <select
+                value={contactCountryCode}
+                onChange={(e) => setContactCountryCode(e.target.value)}
+                disabled={loading}
+                className="w-28 px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors appearance-none"
+              >
+                {["+968", "+971", "+966", "+973", "+974", "+965", "+44", "+1", "+other"].map((code) => (
+                  <option key={code} value={code}>
+                    {code}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="tel"
+                value={contactNumber}
+                onChange={(e) => setContactNumber(e.target.value)}
+                placeholder="Phone number"
+                disabled={loading}
+                className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Bank Details */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="font-satoshi font-bold text-primary text-lg mb-4">
+              Bank details
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block font-satoshi text-sm font-medium text-primary mb-1.5">
+                  Bank account number
+                </label>
+                <input
+                  type="text"
+                  value={bankAccountNumber}
+                  onChange={(e) => setBankAccountNumber(e.target.value)}
+                  placeholder="Enter account number"
+                  disabled={loading}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block font-satoshi text-sm font-medium text-primary mb-1.5">
+                  Which bank?
+                </label>
+                <select
+                  value={bankName}
+                  onChange={(e) => setBankName(e.target.value)}
+                  disabled={loading}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors appearance-none"
+                >
+                  <option value="">Select a bank...</option>
+                  {["Bank Dhofar", "Bank Muscat", "National Bank of Oman", "Oman Arab Bank", "Ahli Bank", "HSBC Oman", "Other"].map((bank) => (
+                    <option key={bank} value={bank}>
+                      {bank}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
           {/* Receipt Upload */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="font-satoshi font-bold text-primary text-lg mb-4 flex items-center gap-2">
@@ -625,6 +811,14 @@ export default function ClaimForm({
                 </div>
               )}
             </div>
+            {file && (
+              <div className="mt-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                <p className="font-satoshi text-xs text-amber-700">
+                  Please make sure everything is visible, and that your name does not show.
+                </p>
+              </div>
+            )}
             {errors.receipt && (
               <p className="mt-1 font-satoshi text-xs text-red-500">{errors.receipt}</p>
             )}

@@ -16,6 +16,14 @@ interface CreateClaimRequest {
   amount: number;
   description: string;
   serviceDate?: string;
+  sessionCount?: number;
+  sessionTypes?: string[];
+  sessionFor?: string;
+  sessionForOther?: string;
+  contactCountryCode?: string;
+  contactNumber?: string;
+  bankAccountNumber?: string;
+  bankName?: string;
   /** Base64-encoded file data (data URI or raw base64). */
   fileData?: string;
   /** Original filename, used to detect extension. */
@@ -52,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body: CreateClaimRequest = await request.json();
-    const { clinicId, clinicName, amount, description, serviceDate, fileData, fileName, mimeType } = body;
+    const { clinicId, clinicName, amount, description, serviceDate, sessionCount, sessionTypes, sessionFor, sessionForOther, contactCountryCode, contactNumber, bankAccountNumber, bankName, fileData, fileName, mimeType } = body;
 
     // ── Validate required fields ───────────────────────────────────────────
     if (!clinicId) {
@@ -153,6 +161,14 @@ export async function POST(request: NextRequest) {
       receiptUrl,
       receiptHash,
       serviceDate: typeof serviceDate === "string" ? serviceDate : undefined,
+      sessionCount: typeof sessionCount === "number" ? sessionCount : undefined,
+      sessionTypes: Array.isArray(sessionTypes) ? sessionTypes : undefined,
+      sessionFor: typeof sessionFor === "string" ? sessionFor : undefined,
+      sessionForOther: typeof sessionForOther === "string" ? sessionForOther : undefined,
+      contactCountryCode: typeof contactCountryCode === "string" ? contactCountryCode : undefined,
+      contactNumber: typeof contactNumber === "string" ? contactNumber : undefined,
+      bankAccountNumber: typeof bankAccountNumber === "string" ? bankAccountNumber : undefined,
+      bankName: typeof bankName === "string" ? bankName : undefined,
     };
 
     let claimRes: Response;

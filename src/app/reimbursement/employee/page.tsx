@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import EmployeeLoginForm from "./EmployeeLoginForm";
-import { getTenantBySlug } from "@/data/tenants";
+import { getTenants } from "@/data/tenants";
 
 export default async function EmployeeLoginPage({
   searchParams,
@@ -8,8 +8,8 @@ export default async function EmployeeLoginPage({
   searchParams: Promise<{ tenant?: string }>;
 }) {
   const params = await searchParams;
-  const tenantSlug = params.tenant ?? "";
-  const tenant = tenantSlug ? (await getTenantBySlug(tenantSlug)) ?? null : null;
+  const preselectedSlug = params.tenant ?? "";
+  const tenants = await getTenants();
 
   return (
     <Suspense
@@ -23,7 +23,7 @@ export default async function EmployeeLoginPage({
         </div>
       }
     >
-      <EmployeeLoginForm tenantSlug={tenantSlug} tenant={tenant} />
+      <EmployeeLoginForm tenants={tenants} preselectedSlug={preselectedSlug} />
     </Suspense>
   );
 }

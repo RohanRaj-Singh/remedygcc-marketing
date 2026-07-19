@@ -61,6 +61,12 @@ const STATUS_CONFIG: Record<
     icon: <Clock className="w-5 h-5" />,
     class: "bg-amber-50 text-amber-700 border-amber-200",
   },
+  in_progress: {
+    label: "In Progress",
+    description: "Your claim is being reviewed by the tenant.",
+    icon: <Clock className="w-5 h-5" />,
+    class: "bg-blue-50 text-blue-700 border-blue-200",
+  },
   approved: {
     label: "Approved",
     description: "Your claim has been approved.",
@@ -77,7 +83,7 @@ const STATUS_CONFIG: Record<
     label: "Frozen",
     description: "Your claim is temporarily on hold.",
     icon: <Snowflake className="w-5 h-5" />,
-    class: "bg-blue-50 text-blue-700 border-blue-200",
+    class: "bg-sky-50 text-sky-700 border-sky-200",
   },
   paid: {
     label: "Paid",
@@ -402,7 +408,8 @@ export default function ClaimDetail({
                     className={`absolute -left-1.5 top-1 h-3 w-3 rounded-full border-2 border-white ${
                       entry.status === "approved" ? "bg-green-500" :
                       entry.status === "rejected" ? "bg-red-500" :
-                      entry.status === "frozen"   ? "bg-blue-500" :
+                      entry.status === "in_progress" ? "bg-blue-500" :
+                      entry.status === "frozen"   ? "bg-sky-500" :
                       entry.status === "paid"     ? "bg-purple-500" :
                       "bg-amber-500"
                     }`}
@@ -411,7 +418,8 @@ export default function ClaimDetail({
                     <span className={`font-satoshi font-bold text-xs capitalize px-2 py-0.5 rounded-full ${
                       entry.status === "approved" ? "bg-green-50 text-green-700" :
                       entry.status === "rejected" ? "bg-red-50 text-red-700" :
-                      entry.status === "frozen"   ? "bg-blue-50 text-blue-700" :
+                      entry.status === "in_progress" ? "bg-blue-50 text-blue-700" :
+                      entry.status === "frozen"   ? "bg-sky-50 text-sky-700" :
                       entry.status === "paid"     ? "bg-purple-50 text-purple-700" :
                       "bg-amber-50 text-amber-700"
                     }`}>
