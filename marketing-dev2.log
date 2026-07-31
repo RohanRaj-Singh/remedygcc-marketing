@@ -4,3 +4,49 @@
 
  ✓ Starting...
  ✓ Ready in 2.8s
+ ○ Compiling /api/employee-access/login ...
+ ✓ Compiled /api/employee-access/login in 1381ms (67 modules)
+ POST /api/employee-access/login 503 in 11766ms
+ POST /api/employee-access/login 401 in 1240ms
+ POST /api/employee-access/login 401 in 1010ms
+ POST /api/employee-access/login 200 in 4495ms
+ ○ Compiling /reimbursement/portal ...
+ ✓ Compiled /reimbursement/portal in 10s (734 modules)
+ ✓ Compiled in 960ms (379 modules)
+ ✓ Compiled in 413ms (267 modules)
+ ○ Compiling /reimbursement/employee/profile ...
+ ✓ Compiled /reimbursement/employee/profile in 1353ms (650 modules)
+ ✓ Compiled /api/employee-access/session in 263ms (372 modules)
+ GET /api/employee-access/session 200 in 387ms
+ GET /api/employee-access/session 200 in 33ms
+ ✓ Compiled in 487ms (392 modules)
+ ✓ Compiled /reimbursement/employee/profile in 427ms (315 modules)
+ GET /reimbursement/employee/profile 200 in 903ms
+ ✓ Compiled /api/employee-access/session in 168ms (343 modules)
+ GET /api/employee-access/session 200 in 329ms
+ GET /api/employee-access/session 200 in 35ms
+ ○ Compiling /reimbursement/employee/change-password ...
+ ✓ Compiled /reimbursement/employee/change-password in 1067ms (755 modules)
+ ✓ Compiled in 453ms (398 modules)
+ GET /api/employee-access/session 200 in 45ms
+ GET /api/employee-access/session 200 in 21ms
+ ✓ Compiled /reimbursement/portal in 322ms (378 modules)
+ GET /reimbursement/portal 200 in 543ms
+ ○ Compiling /api/employee-access/logout ...
+ ✓ Compiled /api/employee-access/logout in 897ms (369 modules)
+ POST /api/employee-access/logout 200 in 1058ms
+ ○ Compiling /reimbursement ...
+ ✓ Compiled /reimbursement in 1258ms (669 modules)
+ ✓ Compiled /api/employee-access/tenants in 235ms (379 modules)
+ GET /api/employee-access/tenants 200 in 3250ms
+ GET /api/employee-access/tenants 200 in 198ms
+ ○ Compiling /reimbursement/employee ...
+ ✓ Compiled /reimbursement/employee in 732ms (685 modules)
+ ✓ Compiled /api/employee-access/login in 265ms (391 modules)
+ POST /api/employee-access/login 403 in 4493ms
+ ✓ Compiled in 308ms (361 modules)
+ ✓ Compiled in 391ms (408 modules)
+ ✓ Compiled in 844ms (641 modules)
+ ✓ Compiled in 378ms (411 modules)
+ ✓ Compiled /api/employee-access/login in 379ms (370 modules)
+ POST /api/employee-access/login 200 in 2980ms
