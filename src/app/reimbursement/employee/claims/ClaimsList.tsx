@@ -10,6 +10,7 @@ import {
   Plus,
   Search,
 } from "lucide-react";
+import NotificationBell from "@/components/claims/NotificationBell";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -24,6 +25,12 @@ interface Claim {
   status: string;
   createdAt: string;
   updatedAt: string;
+  latestUpdate?: {
+    status: string;
+    actorRole: "employee" | "tenantAdmin";
+    note: string | null;
+    timestamp: string;
+  } | null;
 }
 
 interface ClaimsListProps {
@@ -191,14 +198,17 @@ export default function ClaimsList({
                 {employeeName} &middot; {tenantName}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => router.push("/reimbursement/employee/new")}
-              className="hidden md:flex items-center gap-2 bg-primary text-white font-satoshi font-bold px-5 py-2.5 rounded-lg hover:bg-primary/90 transition-colors text-sm"
-            >
-              <Plus className="w-4 h-4" />
-              New Claim
-            </button>
+            <div className="flex items-center gap-3">
+              <NotificationBell />
+              <button
+                type="button"
+                onClick={() => router.push("/reimbursement/employee/new")}
+                className="hidden md:flex items-center gap-2 bg-primary text-white font-satoshi font-bold px-5 py-2.5 rounded-lg hover:bg-primary/90 transition-colors text-sm"
+              >
+                <Plus className="w-4 h-4" />
+                New Claim
+              </button>
+            </div>
           </div>
         </div>
 
@@ -317,6 +327,11 @@ export default function ClaimsList({
                       {claim.updatedAt && claim.updatedAt !== claim.createdAt && (
                         <p className="font-satoshi text-xs text-gray-400 mt-0.5">
                           Updated {formatDate(claim.updatedAt)}
+                        </p>
+                      )}
+                      {claim.latestUpdate?.note && (
+                        <p className="font-satoshi text-xs text-gray-500 mt-0.5 truncate max-w-[360px]">
+                          {claim.latestUpdate.note}
                         </p>
                       )}
                     </div>

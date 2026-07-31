@@ -18,6 +18,9 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import ClaimTimeline from "@/components/claims/ClaimTimeline";
+import ClaimChat from "@/components/claims/ClaimChat";
+import ClaimRequests from "@/components/claims/ClaimRequests";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -401,43 +404,22 @@ export default function ClaimDetail({
             <p className="font-satoshi text-xs text-gray-400 uppercase tracking-wider mb-4">
               Claim History
             </p>
-            <ol className="relative border-l border-gray-200 ml-2 space-y-4">
-              {claim.history.map((entry, i) => (
-                <li key={i} className="pl-5 relative">
-                  <span
-                    className={`absolute -left-1.5 top-1 h-3 w-3 rounded-full border-2 border-white ${
-                      entry.status === "approved" ? "bg-green-500" :
-                      entry.status === "rejected" ? "bg-red-500" :
-                      entry.status === "in_progress" ? "bg-blue-500" :
-                      entry.status === "frozen"   ? "bg-sky-500" :
-                      entry.status === "paid"     ? "bg-purple-500" :
-                      "bg-amber-500"
-                    }`}
-                  />
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className={`font-satoshi font-bold text-xs capitalize px-2 py-0.5 rounded-full ${
-                      entry.status === "approved" ? "bg-green-50 text-green-700" :
-                      entry.status === "rejected" ? "bg-red-50 text-red-700" :
-                      entry.status === "in_progress" ? "bg-blue-50 text-blue-700" :
-                      entry.status === "frozen"   ? "bg-sky-50 text-sky-700" :
-                      entry.status === "paid"     ? "bg-purple-50 text-purple-700" :
-                      "bg-amber-50 text-amber-700"
-                    }`}>
-                      {entry.status.charAt(0).toUpperCase() + entry.status.slice(1)}
-                    </span>
-                    <span className="font-satoshi text-xs text-gray-400">
-                      {entry.actorRole === "employee" ? "You" : "Reviewer"}
-                    </span>
-                    <span className="font-satoshi text-xs text-gray-400">&middot; {formatDate(entry.timestamp)}</span>
-                  </div>
-                  {entry.note && (
-                    <p className="mt-1 font-satoshi text-xs text-gray-600">{entry.note}</p>
-                  )}
-                </li>
-              ))}
-            </ol>
+            <ClaimTimeline history={claim.history} />
           </div>
         )}
+
+        {/* Chat */}
+        <ClaimChat
+          claimId={claimId}
+          apiBase={`/api/employee-access/claims/${claimId}/messages`}
+        />
+
+        {/* Requests */}
+        <ClaimRequests
+          claimId={claimId}
+          apiBase={`/api/employee-access/claims/${claimId}/requests`}
+          canCreate
+        />
 
         {/* Back button */}
         <div className="mt-8 text-center">

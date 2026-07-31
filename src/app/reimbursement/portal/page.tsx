@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User, Clock, FileText, Lock, Loader2 } from "lucide-react";
 import PortalLogoutButton from "./PortalLogoutButton";
+import NotificationBell from "@/components/claims/NotificationBell";
 
 interface SessionData {
   employeeId: string;
@@ -76,7 +77,10 @@ export default function PortalPage() {
                 {session.tenantName} &mdash; Employee Access Portal
               </p>
             </div>
-            <PortalLogoutButton />
+            <div className="flex items-center gap-3">
+              <NotificationBell />
+              <PortalLogoutButton />
+            </div>
           </div>
         </div>
 

@@ -50,3 +50,9 @@
  ✓ Compiled in 378ms (411 modules)
  ✓ Compiled /api/employee-access/login in 379ms (370 modules)
  POST /api/employee-access/login 200 in 2980ms
+ ○ Compiling /api/employee-access/logout ...
+ ✓ Compiled /api/employee-access/logout in 672ms (368 modules)
+ POST /api/employee-access/logout 200 in 915ms
+ ✓ Compiled /api/employee-access/tenants in 344ms (370 modules)
+ GET /api/employee-access/tenants 200 in 832ms
+ GET /api/employee-access/tenants 200 in 230ms

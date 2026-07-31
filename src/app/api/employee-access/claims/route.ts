@@ -24,6 +24,12 @@ interface ClaimListItem {
   status: string;
   createdAt: string;
   updatedAt: string;
+  latestUpdate?: {
+    status: string;
+    actorRole: "employee" | "tenantAdmin";
+    note: string | null;
+    timestamp: string;
+  } | null;
 }
 
 interface ClaimsResponse {
