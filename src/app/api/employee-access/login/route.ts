@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
     else if (errorCode === "EMPLOYEE_LOCKED") status = 429;
     else if (errorCode === "EMPLOYEE_INACTIVE") status = 403;
     else if (errorCode === "EMPLOYEE_SUSPENDED") status = 403;
+    else if (errorCode === "EMPLOYEE_ARCHIVED") status = 403;
     else if (errorCode === "TENANT_NOT_FOUND") status = 401;
 
     return NextResponse.json<LoginResponse>(
@@ -84,8 +85,13 @@ export async function POST(request: NextRequest) {
 
   // ── Success — create session ─────────────────────────────────────────────
 
-  // Resolve tenant name for session display
-  const tenant = await getTenantBySlug(tenantSlug);
+  // Resolve tenant name for session display. The reserved individual pool is
+  // hidden from the org list (so getTenantBySlug("individual") finds nothing),
+  // so its display name is hardcoded for the session payload.
+  const tenant =
+    tenantSlug === "individual"
+      ? { name: "Individual Members" }
+      : await getTenantBySlug(tenantSlug);
   const tenantName = tenant?.name ?? tenantSlug;
 
   const sessionCookie = createSession({

@@ -45,6 +45,23 @@ export default function ProfilePage() {
         if (data.authenticated && data.session) {
           setSession(data.session);
           setName(data.session.employeeName ?? "");
+          // Load the employee's saved profile (incl. bank details) so the form
+          // reflects what is on file — editing never wipes existing values.
+          try {
+            const profileRes = await fetch("/api/employee-access/profile");
+            if (profileRes.ok) {
+              const profileData = await profileRes.json();
+              const emp = profileData?.employee;
+              if (emp) {
+                if (emp.name) setName(emp.name);
+                if (emp.phoneNumber) setPhoneNumber(emp.phoneNumber);
+                if (emp.bankAccountNumber) setBankAccountNumber(emp.bankAccountNumber);
+                if (emp.bankName) setBankName(emp.bankName);
+              }
+            }
+          } catch {
+            // Profile load is best-effort.
+          }
         } else {
           router.push("/reimbursement/employee");
         }

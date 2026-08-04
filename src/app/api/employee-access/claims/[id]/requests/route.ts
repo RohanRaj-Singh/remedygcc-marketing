@@ -8,10 +8,28 @@ const TENANT_APP_URL =
 
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY ?? "";
 
-interface RequestsProxyResponse {
+interface RequestProxyResponse {
   success: boolean;
   requests?: unknown[];
+  request?: unknown;
   error?: string;
+}
+
+/**
+ * The tenantapp can return errors in two shapes:
+ *  - `{ error: "plain message" }` from route-level validation
+ *  - `{ error: { code, message, details } }` from apiErrorResponse
+ * Normalize both to a plain string so the UI never renders "[object Object]".
+ */
+function extractErrorMessage(data: Record<string, unknown> | null, fallback: string): string {
+  if (!data) return fallback;
+  const err = data.error;
+  if (typeof err === "string" && err.trim()) return err;
+  if (err && typeof err === "object") {
+    const msg = (err as { message?: unknown }).message;
+    if (typeof msg === "string" && msg.trim()) return msg;
+  }
+  return fallback;
 }
 
 function sessionParams(session: { tenantId: string; employeeCode: string }) {
@@ -27,7 +45,7 @@ export async function GET(
 ) {
   const session = getSession();
   if (!session) {
-    return NextResponse.json<RequestsProxyResponse>(
+    return NextResponse.json<RequestProxyResponse>(
       { success: false, error: "Authentication required." },
       { status: 401 },
     );
@@ -47,7 +65,7 @@ export async function GET(
       },
     );
   } catch {
-    return NextResponse.json<RequestsProxyResponse>(
+    return NextResponse.json<RequestProxyResponse>(
       { success: false, error: "Unable to connect. Please try again." },
       { status: 503 },
     );
@@ -56,14 +74,17 @@ export async function GET(
   const data = await tenantRes.json().catch(() => null);
 
   if (!tenantRes.ok) {
-    return NextResponse.json<RequestsProxyResponse>(
-      { success: false, error: data?.error ?? "Failed to load requests." },
+    return NextResponse.json<RequestProxyResponse>(
+      { success: false, error: extractErrorMessage(data, "Failed to load requests.") },
       { status: tenantRes.status },
     );
   }
 
-  return NextResponse.json<RequestsProxyResponse>(
-    { success: true, requests: data?.requests ?? [] },
+  return NextResponse.json<RequestProxyResponse>(
+    {
+      success: true,
+      requests: data?.requests ?? [],
+    },
     { status: 200 },
   );
 }
@@ -74,7 +95,7 @@ export async function POST(
 ) {
   const session = getSession();
   if (!session) {
-    return NextResponse.json<RequestsProxyResponse>(
+    return NextResponse.json<RequestProxyResponse>(
       { success: false, error: "Authentication required." },
       { status: 401 },
     );
@@ -90,12 +111,15 @@ export async function POST(
       {
         method: "POST",
         headers: { "x-admin-api-key": ADMIN_API_KEY, "Content-Type": "application/json" },
-        body: JSON.stringify({ subject: body.subject, details: body.details }),
+        body: JSON.stringify({
+          subject: body.subject,
+          body: body.body,
+        }),
         signal: AbortSignal.timeout(10_000),
       },
     );
   } catch {
-    return NextResponse.json<RequestsProxyResponse>(
+    return NextResponse.json<RequestProxyResponse>(
       { success: false, error: "Unable to connect. Please try again." },
       { status: 503 },
     );
@@ -104,11 +128,14 @@ export async function POST(
   const data = await tenantRes.json().catch(() => null);
 
   if (!tenantRes.ok) {
-    return NextResponse.json<RequestsProxyResponse>(
-      { success: false, error: data?.error ?? "Failed to create request." },
+    return NextResponse.json<RequestProxyResponse>(
+      { success: false, error: extractErrorMessage(data, "Failed to send request.") },
       { status: tenantRes.status },
     );
   }
 
-  return NextResponse.json<RequestsProxyResponse>({ success: true }, { status: 201 });
+  return NextResponse.json<RequestProxyResponse>(
+    { success: true, request: data?.request },
+    { status: 201 },
+  );
 }

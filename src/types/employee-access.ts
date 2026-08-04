@@ -43,7 +43,36 @@ export interface RegisterRequest {
   email: string;
   password: string;
   name: string;
-  phone?: string;
+  phoneNumber?: string;
+  bankAccountNumber?: string;
+  bankName?: string;
+}
+
+/** Public / individual sign-up — no organisation, no employee code (FR-079). */
+export interface IndividualRegisterRequest {
+  email: string;
+  password: string;
+  name: string;
+  phoneNumber?: string;
+  bankAccountNumber?: string;
+  bankName?: string;
+}
+
+export interface IndividualRegisterResponse {
+  success: boolean;
+  employee?: {
+    employeeId: string;
+    employeeCode: string;
+    email: string;
+    name: string;
+    status: string;
+    tenantId: string;
+    phoneNumber?: string;
+    bankAccountNumber?: string;
+    bankName?: string;
+  };
+  error?: string;
+  errorCode?: string;
 }
 
 export interface RegisterResponse {
@@ -54,6 +83,9 @@ export interface RegisterResponse {
     email: string;
     name: string;
     status: string;
+    phoneNumber?: string;
+    bankAccountNumber?: string;
+    bankName?: string;
   };
   error?: string;
   errorCode?: string;
@@ -67,6 +99,29 @@ export interface ChangePasswordRequest {
 export interface ChangePasswordResponse {
   success: boolean;
   employee?: Record<string, unknown>;
+  error?: string;
+  errorCode?: string;
+}
+
+export interface ForgotPasswordRequest {
+  tenantSlug: string;
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+  errorCode?: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  password: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
   error?: string;
   errorCode?: string;
 }

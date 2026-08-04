@@ -7,16 +7,14 @@ import {
   EyeOff,
   Mail,
   Lock,
-  Building2,
+  UserRound,
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
-import type { Tenant, LoginResponse } from "@/types/employee-access";
+import type { LoginResponse } from "@/types/employee-access";
 
-interface EmployeeLoginFormProps {
-  tenants: Tenant[];
-  preselectedSlug: string;
-}
+/** Fixed slug for the reserved individual pool (FR-079). */
+const INDIVIDUAL_SLUG = "individual";
 
 const ERROR_MESSAGES: Record<string, string> = {
   NOT_REGISTERED:
@@ -24,20 +22,15 @@ const ERROR_MESSAGES: Record<string, string> = {
   INVALID_PASSWORD: "Invalid email or password. Please try again.",
   EMPLOYEE_LOCKED: "Too many attempts. Please try again later.",
   EMPLOYEE_SUSPENDED:
-    "This account has been suspended. Please contact your administrator.",
+    "This account has been suspended. Please contact support.",
   EMPLOYEE_ARCHIVED:
-    "This account has been archived. Please contact your administrator.",
+    "This account has been archived. Please contact support.",
   EMPLOYEE_INACTIVE: "This account is no longer active.",
-  TENANT_NOT_FOUND: "Invalid organization. Please try again.",
 };
 
-export default function EmployeeLoginForm({
-  tenants,
-  preselectedSlug,
-}: EmployeeLoginFormProps) {
+export default function IndividualLoginForm() {
   const router = useRouter();
 
-  const [selectedSlug, setSelectedSlug] = useState(preselectedSlug);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -50,13 +43,6 @@ export default function EmployeeLoginForm({
       e.preventDefault();
       setError("");
       setErrorCode(null);
-
-      // Client-side validation
-      if (!selectedSlug) {
-        setError("Please select your organization.");
-        setErrorCode("TENANT_NOT_FOUND");
-        return;
-      }
 
       if (!email.trim() || !email.includes("@")) {
         setError("Please enter a valid email address.");
@@ -77,7 +63,7 @@ export default function EmployeeLoginForm({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            tenantSlug: selectedSlug,
+            tenantSlug: INDIVIDUAL_SLUG,
             email: email.trim(),
             password,
           }),
@@ -96,13 +82,11 @@ export default function EmployeeLoginForm({
           return;
         }
 
-        // Check if password change is required
         if (data.mustChangePassword) {
           router.push("/reimbursement/employee/change-password?mustChange=true");
           return;
         }
 
-        // Success — redirect to portal
         router.push("/reimbursement/portal");
       } catch {
         setError("An error occurred. Please try again.");
@@ -110,11 +94,8 @@ export default function EmployeeLoginForm({
         setLoading(false);
       }
     },
-    [selectedSlug, email, password, router],
+    [email, password, router],
   );
-
-  // Get the selected tenant for display
-  const selectedTenant = tenants.find((t) => t.slug === selectedSlug);
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-primary/5 to-white pt-28 pb-10">
@@ -137,7 +118,7 @@ export default function EmployeeLoginForm({
               d="M15 19l-7-7 7-7"
             />
           </svg>
-          Back to employee access
+          Back to access options
         </Link>
 
         {/* Login Card */}
@@ -145,10 +126,10 @@ export default function EmployeeLoginForm({
           {/* Header */}
           <div className="text-center mb-8">
             <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <Building2 className="w-7 h-7 text-primary" />
+              <UserRound className="w-7 h-7 text-primary" />
             </div>
             <h1 className="font-roca-one text-2xl text-primary mb-1">
-              Employee Sign In
+              Individual Sign In
             </h1>
             <p className="text-gray-500 font-satoshi text-sm">
               Sign in to submit and track your claims
@@ -163,7 +144,7 @@ export default function EmployeeLoginForm({
                 <p className="font-satoshi text-sm text-red-700">{error}</p>
                 {errorCode === "NOT_REGISTERED" && (
                   <Link
-                    href="/reimbursement/employee/register"
+                    href="/reimbursement/individual/register"
                     className="font-satoshi text-xs text-red-600 underline mt-1 inline-block hover:no-underline"
                   >
                     Sign up here
@@ -174,50 +155,10 @@ export default function EmployeeLoginForm({
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Organization */}
-            <div>
-              <label
-                htmlFor="organization"
-                className="block font-satoshi font-bold text-sm text-primary mb-1.5"
-              >
-                Organization
-              </label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                <select
-                  id="organization"
-                  value={selectedSlug}
-                  onChange={(e) => setSelectedSlug(e.target.value)}
-                  disabled={loading}
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors appearance-none"
-                >
-                  <option value="">Select your organization</option>
-                  {tenants.map((t) => (
-                    <option key={t.slug} value={t.slug}>
-                      {t.name}
-                    </option>
-                  ))}
-                </select>
-                <svg
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
-            </div>
-
             {/* Email */}
             <div>
               <label
-                htmlFor="email"
+                htmlFor="ind-email"
                 className="block font-satoshi font-bold text-sm text-primary mb-1.5"
               >
                 Email
@@ -225,11 +166,11 @@ export default function EmployeeLoginForm({
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  id="email"
+                  id="ind-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@organization.com"
+                  placeholder="you@example.com"
                   disabled={loading}
                   autoComplete="email"
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -241,13 +182,13 @@ export default function EmployeeLoginForm({
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label
-                  htmlFor="password"
+                  htmlFor="ind-password"
                   className="block font-satoshi font-bold text-sm text-primary"
                 >
                   Password
                 </label>
                 <Link
-                  href={`/reimbursement/employee/forgot-password${selectedSlug ? `?tenant=${selectedSlug}` : ""}`}
+                  href="/reimbursement/employee/forgot-password?tenant=individual"
                   className="font-satoshi text-xs text-primary hover:underline"
                 >
                   Forgot password?
@@ -256,7 +197,7 @@ export default function EmployeeLoginForm({
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  id="password"
+                  id="ind-password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -322,7 +263,7 @@ export default function EmployeeLoginForm({
             <p className="font-satoshi text-sm text-gray-500">
               Don&apos;t have an account?{" "}
               <Link
-                href="/reimbursement/employee/register"
+                href="/reimbursement/individual/register"
                 className="text-primary font-bold hover:underline"
               >
                 Sign Up
@@ -331,9 +272,12 @@ export default function EmployeeLoginForm({
           </div>
         </div>
 
-        {/* Help text */}
+        {/* Cross-link to organisation access */}
         <p className="text-center text-xs text-gray-400 font-satoshi mt-6">
-          Contact your organization&apos;s administrator if you need assistance.
+          Part of a partner organisation?{" "}
+          <Link href="/reimbursement" className="text-primary hover:underline">
+            Access your organisation portal
+          </Link>
         </p>
       </div>
     </div>

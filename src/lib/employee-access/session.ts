@@ -109,7 +109,7 @@ export function isInactiveEmployeeError(status: number, errorBody: Record<string
   if (status !== 403) return false;
   if (!errorBody || typeof errorBody.error !== "string") return false;
   const msg = errorBody.error.toLowerCase();
-  return msg.includes("not active") || msg.includes("inactive") || msg.includes("disabled") || msg.includes("suspended");
+  return msg.includes("not active") || msg.includes("inactive") || msg.includes("disabled") || msg.includes("suspended") || msg.includes("archived");
 }
 
 /**

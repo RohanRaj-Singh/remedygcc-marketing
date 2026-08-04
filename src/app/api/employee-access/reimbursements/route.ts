@@ -105,6 +105,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Bank details are required so every claim carries a complete payout snapshot.
+    if (!bankAccountNumber || typeof bankAccountNumber !== "string" || !bankAccountNumber.trim()) {
+      return NextResponse.json<CreateClaimResponse>(
+        { success: false, error: "Bank account number is required.", errorCode: "VALIDATION" },
+        { status: 400 },
+      );
+    }
+    if (!bankName || typeof bankName !== "string" || !bankName.trim()) {
+      return NextResponse.json<CreateClaimResponse>(
+        { success: false, error: "Bank name is required.", errorCode: "VALIDATION" },
+        { status: 400 },
+      );
+    }
+
     // ── Upload receipt file to Tenant App ──────────────────────────────────
     let receiptUrl: string | undefined;
     let receiptHash: string | undefined;

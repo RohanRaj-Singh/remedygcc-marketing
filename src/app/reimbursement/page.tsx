@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, ChevronRight, Loader2, Search, AlertCircle } from "lucide-react";
+import { Building2, ChevronRight, Loader2, Search, AlertCircle, UserRound } from "lucide-react";
 
 interface Tenant {
   id: string;
@@ -63,6 +63,35 @@ export default function ReimbursementPage() {
           <p className="text-lg text-gray-600 font-satoshi max-w-lg mx-auto">
             Select your organisation to access the employee reimbursement portal.
           </p>
+        </div>
+
+        {/* Individual (public) sign-up — not part of an organisation */}
+        <button
+          type="button"
+          onClick={() => router.push("/reimbursement/individual")}
+          className="group w-full flex items-center gap-4 p-5 mb-6 bg-white rounded-xl shadow-sm border border-primary/20 hover:shadow-md hover:border-primary/40 transition-all duration-200 text-left cursor-pointer"
+        >
+          <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <UserRound className="w-6 h-6 text-primary" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-satoshi font-bold text-base text-primary">
+              I&apos;m an individual
+            </h3>
+            <p className="text-xs text-gray-500 font-satoshi mt-0.5">
+              Not part of an organisation? Sign up or sign in for personal coverage.
+            </p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-300 shrink-0 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+        </button>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex-1 h-px bg-gray-200" />
+          <span className="text-xs text-gray-400 font-satoshi uppercase tracking-wide">
+            Or select your organisation
+          </span>
+          <div className="flex-1 h-px bg-gray-200" />
         </div>
 
         {/* Search */}

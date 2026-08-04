@@ -8,35 +8,26 @@ import {
   EyeOff,
   Mail,
   Lock,
-  Building2,
-  User,
+  UserRound,
   Phone,
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
-import type { Tenant, RegisterResponse } from "@/types/employee-access";
-
-interface RegisterFormProps {
-  tenants: Tenant[];
-}
+import type { IndividualRegisterResponse } from "@/types/employee-access";
 
 const ERROR_MESSAGES: Record<string, string> = {
-  EMPLOYEE_NOT_FOUND:
-    "We couldn't find a matching invitation. Please check your details or contact your organization.",
   ALREADY_REGISTERED:
     "This account is already registered. Please sign in instead.",
-  EMAIL_MISMATCH: "The email you entered doesn't match our records.",
   WEAK_PASSWORD:
     "Password must be at least 8 characters with uppercase, lowercase, and a digit.",
-  ACCOUNT_NOT_AVAILABLE: "This account cannot be registered at this time.",
+  VALIDATION_ERROR: "Please check your details and try again.",
+  NAME_REQUIRED: "Full name is required.",
 };
 
-export default function RegisterForm({ tenants }: RegisterFormProps) {
+export default function IndividualRegisterForm() {
   const router = useRouter();
 
   // Form fields
-  const [selectedSlug, setSelectedSlug] = useState("");
-  const [employeeCode, setEmployeeCode] = useState("");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -54,8 +45,6 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
   const [success, setSuccess] = useState(false);
 
   const validateForm = useCallback((): string | null => {
-    if (!selectedSlug) return "Please select your organization.";
-    if (!employeeCode.trim()) return "Employee code is required.";
     if (!email.trim() || !email.includes("@"))
       return "Please enter a valid email address.";
     if (!name.trim()) return "Full name is required.";
@@ -70,7 +59,7 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
       return "Password must be at least 8 characters with uppercase, lowercase, and a digit.";
     if (password !== confirmPassword) return "Passwords do not match.";
     return null;
-  }, [selectedSlug, employeeCode, email, name, password, confirmPassword]);
+  }, [email, name, password, confirmPassword]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -87,12 +76,10 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
       setLoading(true);
 
       try {
-        const res = await fetch("/api/employee-access/register", {
+        const res = await fetch("/api/employee-access/individual-register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            tenantSlug: selectedSlug,
-            employeeCode: employeeCode.trim(),
             email: email.trim(),
             password,
             name: name.trim(),
@@ -102,7 +89,7 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
           }),
         });
 
-        const data: RegisterResponse = await res.json();
+        const data: IndividualRegisterResponse = await res.json();
 
         if (!data.success) {
           setErrorCode(data.errorCode ?? null);
@@ -119,7 +106,6 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
         setSuccess(true);
         setLoading(false);
 
-        // Redirect to portal after a brief delay
         setTimeout(() => {
           router.push("/reimbursement/portal");
         }, 2000);
@@ -129,10 +115,9 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
         setLoading(false);
       }
     },
-    [selectedSlug, employeeCode, email, password, name, phoneNumber, bankName, bankAccountNumber, confirmPassword, validateForm, router],
+    [email, password, name, phoneNumber, bankName, bankAccountNumber, validateForm, router],
   );
 
-  // Error code to determine if we should show the "sign in instead" link
   const isAlreadyRegistered = errorCode === "ALREADY_REGISTERED";
 
   // ── Success state ─────────────────────────────────────────────────────────
@@ -184,13 +169,13 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
       {/* Header */}
       <div className="text-center mb-8">
         <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-          <User className="w-7 h-7 text-primary" />
+          <UserRound className="w-7 h-7 text-primary" />
         </div>
         <h1 className="font-roca-one text-2xl text-primary mb-1">
-          Create Account
+          Create Individual Account
         </h1>
         <p className="text-gray-500 font-satoshi text-sm">
-          Set up your account to access the employee portal
+          Sign up to submit and track your own claims
         </p>
       </div>
 
@@ -202,7 +187,7 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
             <p className="font-satoshi text-sm text-red-700">{error}</p>
             {isAlreadyRegistered && (
               <Link
-                href={`/reimbursement/employee${selectedSlug ? `?tenant=${selectedSlug}` : ""}`}
+                href="/reimbursement/individual"
                 className="font-satoshi text-xs text-red-600 underline mt-1 inline-block hover:no-underline"
               >
                 Sign in here
@@ -213,73 +198,10 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Organization */}
-        <div>
-          <label
-            htmlFor="reg-organization"
-            className="block font-satoshi font-bold text-sm text-primary mb-1.5"
-          >
-            Organization
-          </label>
-          <div className="relative">
-            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-            <select
-              id="reg-organization"
-              value={selectedSlug}
-              onChange={(e) => setSelectedSlug(e.target.value)}
-              disabled={loading}
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors appearance-none"
-            >
-              <option value="">Select your organization</option>
-              {tenants.map((t) => (
-                <option key={t.slug} value={t.slug}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-            <svg
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </div>
-        </div>
-
-        {/* Employee Code */}
-        <div>
-          <label
-            htmlFor="reg-employeeCode"
-            className="block font-satoshi font-bold text-sm text-primary mb-1.5"
-          >
-            Employee Code
-          </label>
-          <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              id="reg-employeeCode"
-              type="text"
-              value={employeeCode}
-              onChange={(e) => setEmployeeCode(e.target.value)}
-              placeholder="e.g. EMP-001"
-              disabled={loading}
-              autoComplete="off"
-              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            />
-          </div>
-        </div>
-
         {/* Email */}
         <div>
           <label
-            htmlFor="reg-email"
+            htmlFor="ind-reg-email"
             className="block font-satoshi font-bold text-sm text-primary mb-1.5"
           >
             Email
@@ -287,11 +209,11 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
-              id="reg-email"
+              id="ind-reg-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@organization.com"
+              placeholder="you@example.com"
               disabled={loading}
               autoComplete="email"
               className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -302,13 +224,13 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
         {/* Full Name */}
         <div>
           <label
-            htmlFor="reg-name"
+            htmlFor="ind-reg-name"
             className="block font-satoshi font-bold text-sm text-primary mb-1.5"
           >
             Full Name
           </label>
           <input
-            id="reg-name"
+            id="ind-reg-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -322,7 +244,7 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
         {/* Contact Number */}
         <div>
           <label
-            htmlFor="reg-phoneNumber"
+            htmlFor="ind-reg-phoneNumber"
             className="block font-satoshi font-bold text-sm text-primary mb-1.5"
           >
             Contact Number <span className="font-normal text-gray-400">(optional)</span>
@@ -330,7 +252,7 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
           <div className="relative">
             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
-              id="reg-phoneNumber"
+              id="ind-reg-phoneNumber"
               type="tel"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
@@ -345,13 +267,13 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
         {/* Bank Name */}
         <div>
           <label
-            htmlFor="reg-bankName"
+            htmlFor="ind-reg-bankName"
             className="block font-satoshi font-bold text-sm text-primary mb-1.5"
           >
             Bank Name <span className="font-normal text-gray-400">(optional)</span>
           </label>
           <select
-            id="reg-bankName"
+            id="ind-reg-bankName"
             value={bankName}
             onChange={(e) => setBankName(e.target.value)}
             disabled={loading}
@@ -371,13 +293,13 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
         {/* Bank Account Number */}
         <div>
           <label
-            htmlFor="reg-bankAccountNumber"
+            htmlFor="ind-reg-bankAccountNumber"
             className="block font-satoshi font-bold text-sm text-primary mb-1.5"
           >
             Bank Account Number <span className="font-normal text-gray-400">(optional)</span>
           </label>
           <input
-            id="reg-bankAccountNumber"
+            id="ind-reg-bankAccountNumber"
             type="text"
             value={bankAccountNumber}
             onChange={(e) => setBankAccountNumber(e.target.value)}
@@ -391,7 +313,7 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
         {/* Password */}
         <div>
           <label
-            htmlFor="reg-password"
+            htmlFor="ind-reg-password"
             className="block font-satoshi font-bold text-sm text-primary mb-1.5"
           >
             Password
@@ -399,7 +321,7 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
-              id="reg-password"
+              id="ind-reg-password"
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -436,10 +358,7 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
                 label="Lowercase letter"
                 met={/[a-z]/.test(password)}
               />
-              <PasswordRequirement
-                label="Digit"
-                met={/[0-9]/.test(password)}
-              />
+              <PasswordRequirement label="Digit" met={/[0-9]/.test(password)} />
             </div>
           )}
         </div>
@@ -447,7 +366,7 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
         {/* Confirm Password */}
         <div>
           <label
-            htmlFor="reg-confirm"
+            htmlFor="ind-reg-confirm"
             className="block font-satoshi font-bold text-sm text-primary mb-1.5"
           >
             Confirm Password
@@ -455,7 +374,7 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
-              id="reg-confirm"
+              id="ind-reg-confirm"
               type={showConfirm ? "text" : "password"}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -526,13 +445,21 @@ export default function RegisterForm({ tenants }: RegisterFormProps) {
         <p className="font-satoshi text-sm text-gray-500">
           Already have an account?{" "}
           <Link
-            href="/reimbursement/employee"
+            href="/reimbursement/individual"
             className="text-primary font-bold hover:underline"
           >
             Sign In
           </Link>
         </p>
       </div>
+
+      {/* Cross-link to organisation access */}
+      <p className="text-center text-xs text-gray-400 font-satoshi mt-4">
+        Part of a partner organisation?{" "}
+        <Link href="/reimbursement" className="text-primary hover:underline">
+          Use your organisation portal
+        </Link>
+      </p>
     </div>
   );
 }

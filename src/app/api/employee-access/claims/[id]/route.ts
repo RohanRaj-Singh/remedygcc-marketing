@@ -130,3 +130,75 @@ export async function GET(
     );
   }
 }
+
+export async function PUT(
+  request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  try {
+    const session = getSession();
+    if (!session) {
+      return NextResponse.json<ClaimResponse>(
+        { success: false, error: "Authentication required." },
+        { status: 401 },
+      );
+    }
+
+    const { id } = await context.params;
+    const body = await request.json().catch(() => ({}));
+
+    const params = new URLSearchParams({
+      tenantId: session.tenantId,
+      employeeCode: session.employeeCode,
+    });
+
+    let tenantRes: Response;
+    try {
+      tenantRes = await fetch(
+        `${TENANT_APP_URL}/api/employee/reimbursements/${id}?${params.toString()}`,
+        {
+          method: "PUT",
+          headers: { "x-admin-api-key": ADMIN_API_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          cache: "no-store",
+          signal: AbortSignal.timeout(10_000),
+        },
+      );
+    } catch {
+      return NextResponse.json<ClaimResponse>(
+        { success: false, error: "Unable to connect. Please try again." },
+        { status: 503 },
+      );
+    }
+
+    if (!tenantRes.ok) {
+      let errorMsg = "Failed to update claim.";
+      try {
+        const parsed = await tenantRes.json();
+        if (typeof parsed?.error === "string") {
+          errorMsg = parsed.error;
+        } else if (typeof parsed?.error?.message === "string") {
+          errorMsg = parsed.error.message;
+        }
+      } catch {
+        // keep default
+      }
+      return NextResponse.json<ClaimResponse>(
+        { success: false, error: errorMsg },
+        { status: tenantRes.status },
+      );
+    }
+
+    const claim = await tenantRes.json();
+
+    return NextResponse.json<ClaimResponse>(
+      { success: true, claim },
+      { status: 200 },
+    );
+  } catch {
+    return NextResponse.json<ClaimResponse>(
+      { success: false, error: "An unexpected error occurred." },
+      { status: 500 },
+    );
+  }
+}

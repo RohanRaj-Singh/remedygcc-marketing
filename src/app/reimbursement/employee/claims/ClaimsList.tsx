@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   FileText,
@@ -39,7 +39,7 @@ interface ClaimsListProps {
   tenantName: string;
 }
 
-type FilterValue = "all" | "pending" | "in_progress" | "approved" | "rejected" | "frozen" | "paid";
+type FilterValue = "all" | "pending" | "in_progress" | "approved" | "to_be_paid" | "rejected" | "frozen" | "paid";
 
 // ── Status helpers ─────────────────────────────────────────────────────────
 
@@ -55,6 +55,10 @@ const STATUS_CONFIG: Record<string, { label: string; class: string }> = {
   approved: {
     label: "Approved",
     class: "bg-green-50 text-green-700 border-green-200",
+  },
+  to_be_paid: {
+    label: "Awaiting Payout",
+    class: "bg-orange-50 text-orange-700 border-orange-200",
   },
   rejected: {
     label: "Rejected",
@@ -75,6 +79,7 @@ const FILTER_OPTIONS: { value: FilterValue; label: string }[] = [
   { value: "pending", label: "Pending" },
   { value: "in_progress", label: "In Progress" },
   { value: "approved", label: "Approved" },
+  { value: "to_be_paid", label: "Awaiting Payout" },
   { value: "rejected", label: "Rejected" },
   { value: "frozen", label: "Frozen" },
   { value: "paid", label: "Paid" },
@@ -106,11 +111,16 @@ export default function ClaimsList({
   tenantName,
 }: ClaimsListProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [claims, setClaims] = useState<Claim[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeFilter, setActiveFilter] = useState<FilterValue>("all");
+  // Read initial filter from URL, default to "all"
+  const [activeFilter, setActiveFilter] = useState<FilterValue>(() => {
+    const status = searchParams?.get("status");
+    return (status as FilterValue) ?? "all";
+  });
 
   // ── Fetch claims ─────────────────────────────────────────────────────────
 
@@ -146,9 +156,20 @@ export default function ClaimsList({
 
   // ── Filter change ────────────────────────────────────────────────────────
 
-  const handleFilterChange = useCallback((filter: FilterValue) => {
-    setActiveFilter(filter);
-  }, []);
+  const handleFilterChange = useCallback(
+    (filter: FilterValue) => {
+      setActiveFilter(filter);
+      // Update URL without reloading
+      const newParams = new URLSearchParams(searchParams?.toString() ?? "");
+      if (filter === "all") {
+        newParams.delete("status");
+      } else {
+        newParams.set("status", filter);
+      }
+      router.replace(`/reimbursement/employee/claims?${newParams.toString()}`);
+    },
+    [router, searchParams]
+  );
 
   // ── Loading skeleton ─────────────────────────────────────────────────────
 

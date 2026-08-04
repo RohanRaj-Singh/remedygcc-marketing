@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -41,7 +41,7 @@ interface ClaimSuccess {
   clinicName: string;
 }
 
-type FormErrors = Partial<Record<"clinicId" | "serviceDate" | "amount" | "description" | "receipt", string>>;
+type FormErrors = Partial<Record<"clinicId" | "serviceDate" | "amount" | "description" | "receipt" | "bankAccountNumber" | "bankName", string>>;
 
 const ACCEPTED_FILE_TYPES = ".pdf,.jpg,.jpeg,.png";
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
@@ -87,6 +87,28 @@ export default function ClaimForm({
   const [errors, setErrors] = useState<FormErrors>({});
   const [success, setSuccess] = useState<ClaimSuccess | null>(null);
   const [submitError, setSubmitError] = useState("");
+
+  // ── Prefill bank details from the employee profile ─────────────────────────
+  // The employee profile holds default bank details used to prefill every new
+  // claim. The employee can edit them before submitting; the claim then stores
+  // its own immutable snapshot.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/employee-access/profile");
+        if (!res.ok) return;
+        const data = await res.json();
+        const emp = data?.employee;
+        if (!emp || cancelled) return;
+        if (emp.bankAccountNumber) setBankAccountNumber(emp.bankAccountNumber);
+        if (emp.bankName) setBankName(emp.bankName);
+      } catch {
+        // Prefill is best-effort — the employee can type bank details manually.
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   // ── File handling ──────────────────────────────────────────────────────────
 
@@ -167,8 +189,16 @@ export default function ClaimForm({
       errs.receipt = "Please upload a receipt.";
     }
 
+    // Bank details are required so every claim carries a complete payout snapshot.
+    if (!bankAccountNumber.trim()) {
+      errs.bankAccountNumber = "Bank account number is required.";
+    }
+    if (!bankName) {
+      errs.bankName = "Please select a bank.";
+    }
+
     return errs;
-  }, [clinicId, serviceDate, amount, description, file]);
+  }, [clinicId, serviceDate, amount, description, file, bankAccountNumber, bankName]);
 
   // ── Form submission ────────────────────────────────────────────────────────
 
@@ -255,7 +285,7 @@ export default function ClaimForm({
 
       setLoading(false);
     },
-    [clinicId, clinics, serviceDate, amount, description, file, validate],
+    [clinicId, clinics, serviceDate, amount, description, file, bankAccountNumber, bankName, validate],
   );
 
   // ── Reset form ─────────────────────────────────────────────────────────────
@@ -686,13 +716,16 @@ export default function ClaimForm({
 
           {/* Bank Details */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="font-satoshi font-bold text-primary text-lg mb-4">
-              Bank details
+            <h2 className="font-satoshi font-bold text-primary text-lg mb-1">
+              Bank details <span className="text-red-500">*</span>
             </h2>
+            <p className="font-satoshi text-xs text-gray-500 mb-4">
+              Required for payout. Pre-filled from your profile — you can edit before submitting.
+            </p>
             <div className="space-y-4">
               <div>
                 <label className="block font-satoshi text-sm font-medium text-primary mb-1.5">
-                  Bank account number
+                  Bank account number <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -700,18 +733,25 @@ export default function ClaimForm({
                   onChange={(e) => setBankAccountNumber(e.target.value)}
                   placeholder="Enter account number"
                   disabled={loading}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className={`w-full px-4 py-3 bg-gray-50 border rounded-lg font-satoshi text-sm text-primary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
+                    errors.bankAccountNumber ? "border-red-300" : "border-gray-200"
+                  }`}
                 />
+                {errors.bankAccountNumber && (
+                  <p className="mt-1 text-xs font-satoshi text-red-600">{errors.bankAccountNumber}</p>
+                )}
               </div>
               <div>
                 <label className="block font-satoshi text-sm font-medium text-primary mb-1.5">
-                  Which bank?
+                  Which bank? <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={bankName}
                   onChange={(e) => setBankName(e.target.value)}
                   disabled={loading}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg font-satoshi text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors appearance-none"
+                  className={`w-full px-4 py-3 bg-gray-50 border rounded-lg font-satoshi text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors appearance-none ${
+                    errors.bankName ? "border-red-300" : "border-gray-200"
+                  }`}
                 >
                   <option value="">Select a bank...</option>
                   {["Bank Dhofar", "Bank Muscat", "National Bank of Oman", "Oman Arab Bank", "Ahli Bank", "HSBC Oman", "Other"].map((bank) => (
@@ -720,6 +760,9 @@ export default function ClaimForm({
                     </option>
                   ))}
                 </select>
+                {errors.bankName && (
+                  <p className="mt-1 text-xs font-satoshi text-red-600">{errors.bankName}</p>
+                )}
               </div>
             </div>
           </div>
